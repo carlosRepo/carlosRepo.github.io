@@ -5,12 +5,70 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/index.css" rel="stylesheet">
     <title>Document</title>
 </head>
 
 <body>
-    <h1>aca esta la primera pagina</h1>
-    <a href="https://chatroomcarlospoqw.herokuapp.com/">sala de chat con js websocket</a>
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <h1>Portfolio</h1>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+
+    <br><br>
+    <!-- Carousel Data -->
+    <div id="carouselDiv" class="carousel slide" data-bs-ride="carousel">
+
+        <!-- Indicators/dots -->
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carouselDiv" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#carouselDiv" data-bs-slide-to="1"></button>
+        </div>
+
+        <!-- The slideshow/carousel -->
+        <div class="carousel-inner">
+            <div class="carousel-item active ">
+                <a href="https://chatroomcarlospoqw.herokuapp.com/" target="_blank"><img src="images/chatroomIcon.png" alt="chatroomIcon.png" class="" style="width:25%"></a>
+
+                <br><br>
+                <br><br>
+                <div class="carousel-caption">
+                    <h5>Chat Room</h5>
+                    <p>A webSocket project.</p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <a href="https://github.com/carlosRepo" target="_blank"><img src="images/githubIcon.png" alt="githubIcon.png" class="" style="width:25%"></a>
+                <br><br>
+                <br><br>
+                <div class="carousel-caption ">
+                    <h5>Github Account</h5>
+                    <p>A Github Account link.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Left and right controls/icons -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselDiv" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselDiv" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+    </div>
+
+
+
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/index.js"></script>
 </body>
 
 </html>
