@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .index {
+            background-color: rgb(219, 171, 171);
+        }
+        
+        .voltajeBancoBaterias {
+            background-color: rgb(255, 239, 177);
+        }
+        
+        .panelesDiv {
+            background-color: rgb(243, 180, 180);
+        }
+        
+        .bateriasDiv {
+            background-color: rgb(191, 190, 243);
+        }
+        
+        .tablaPaneles {
+            background-color: rgb(206, 161, 161);
+        }
+        
+        .comprarReguladorMPPT {
+            background-color: rgb(188, 219, 170);
+        }
+    </style>
+</head>
+
+
+<body>
+    <div id="index" class="index">
+        <h1>Index</h1>
+        <button onclick='window.location.hash = "comprarReguladorMPPT";'>Comprar Regulador de carga MPPT</button>
+    </div>
+    <div id="comprarReguladorMPPT" class="comprarReguladorMPPT">
+        <h1>Comprar regulador MPPT</h1>
+        <label for="">ingresar paneles</label><br>
+        <label for="">ingresar voltaje de banco de baterias</label><br>
+        <table>
+            <tr>
+                <td><button id="calcularReguladorMPPT">Calcular</button></td>
+                <td><input type="number" readonly name="" id="reguladorMinimo"></td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="voltajeBancoBateriasDiv" class="voltajeBancoBaterias">
+        <h1>Voltaje banco baterias</h1>
+        <table border="2">
+            <thead>
+                <th>Voltaje de la instalacion de baterias</th>
+            </thead>
+            <tr>
+                <td><input type="number" name="" id="voltajeBancoBaterias"></td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="panelesDiv" class="panelesDiv">
+        <h1>Paneles</h1>
+        <label>ingrese los paneles que tiene: </label><button id="agregarPanel" onclick="agregarFilaPanel()">agregar otro</button>
+        <table border="2" id="tablaPaneles" class="tablaPaneles">
+            <thead>
+                <th>panel monocristalino</th>
+                <th>panel policristalino</th>
+                <th>Watts</th>
+                <th>cantidad</th>
+                <th></th>
+            </thead>
+            <tr>
+                <td><input type="radio" id="panelMono" name="panel" value="mono" checked></td>
+                <td><input type="radio" id="panelPoli" name="panel" value="poli"></td>
+                <td><input type="text" name="wattsPaneles" id="wattsPaneles"></td>
+                <td><input type="text" name="cantidadPaneles" id="cantidadPaneles" value="1"></td>
+                <td><button onclick="borrarFilaPanel(this)">x</button></td>
+            </tr>
+        </table>
+    </div>
+    <!-- #region -->
+    <!-- #region -->
+    <!-- #region -->
+    <!-- #region -->
+    <!-- #region -->
+    <div class="bateriasDiv">
+        <h1>Baterias</h1>
+        <label>ingrese las baterias que tiene: </label><button id="agregarBateria" onclick="agregarFilaBateria()">agregar otro</button>
+        <table border="2" id="tablaBaterias">
+            <thead>
+                <th>watts</th>
+                <th>cantidad</th>
+                <th></th>
+            </thead>
+            <tr>
+                <td><input type="text" name="wattsBaterias" id="wattsBaterias"></td>
+                <td><input type="text" name="cantidadBaterias" id="cantidadBaterias" value="1"></td>
+                <td><button onclick="borrarFilaBateria(this)">x</button></td>
+            </tr>
+        </table>
+    </div>
+
+
+
+
+
+
+
+</body>
+<script>
+    "use strict";
+    var paneles = [];
+    var sumaPaneles = 0;
+    let reguladorMinimoCalculado = 0;
+    let buttonCalcularMMPT = document.getElementById('calcularReguladorMPPT');
+    let voltajeBancoBaterias = document.getElementById('voltajeBancoBaterias');
+    let reguladorMinimo = document.getElementById('reguladorMinimo');
+    buttonCalcularMMPT.onclick = function() {
+        calcularRegulador()
+    };
+
+    function calcularRegulador() {
+        paneles = document.getElementsByName('wattsPaneles');
+        paneles.forEach(sumarPaneles);
+        console.log(sumaPaneles);
+        reguladorMinimoCalculado = sumaPaneles / voltajeBancoBaterias.value;
+        console.log(reguladorMinimoCalculado);
+        reguladorMinimo.value = parseInt(reguladorMinimoCalculado) + 1;
+    }
+
+    function sumarPaneles(item) {
+        sumaPaneles = 0;
+        sumaPaneles += item.value;
+    }
+</script>
+<script>
+    var agregarPanel = document.getElementById("agregarPanel");
+    var panleMono = document.getElementById("panelMono");
+    var panelPoli = document.getElementById("panelPoli");
+    var tablaPaneles = document.getElementById("tablaPaneles");
+    var rowCantidadPaneles = 1;
+
+    function agregarFilaPanel() {
+        var row = tablaPaneles.insertRow(1);
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+        var cell4 = row.insertCell(3);
+        var cell5 = row.insertCell(4);
+        cell1.innerHTML = '<input type="radio" id="panelMono" name="panel' + rowCantidadPaneles + '"" value="mono" checked>';
+        cell2.innerHTML = '<td><input type="radio" id="panelPoli" name="panel' + rowCantidadPaneles + '"" value="poli"></td>';
+        cell3.innerHTML = '<td><input type="text" name="wattsPaneles" id="wattsPaneles"></td>';
+        cell4.innerHTML = '<td><input type="text" name="cantidadPaneles" id="cantidadPaneles" value="1"></td>';
+        cell5.innerHTML = '<td><button onclick="borrarFilaPanel(this)">x</button></td>';
+        rowCantidadPaneles++;
+    }
+
+    function borrarFilaPanel(r) {
+        var i = r.parentNode.parentNode.rowIndex;
+        tablaPaneles.deleteRow(i);
+    }
+</script>
+<script>
+    var cantidadBaterias = document.getElementById("cantidadBaterias");
+    var wattsBaterias = document.getElementById("wattsBaterias");
+    var tablaBaterias = document.getElementById("tablaBaterias");
+    var rowCantidadBaterias = 1;
+
+    function agregarFilaBateria() {
+        var row = tablaBaterias.insertRow(1);
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+        cell1.innerHTML = '<td><input type="text" name="wattsBaterias" id="wattsBaterias"></td>';
+        cell2.innerHTML = '<td><input type="text" name="cantidadBaterias" id="cantidadBaterias" value="1"></td>';
+        cell3.innerHTML = '<td><button onclick="borrarFilaBateria(this)">x</button></td>';
+        rowCantidadBaterias++;
+    }
+
+    function borrarFilaBateria(r) {
+        var i = r.parentNode.parentNode.rowIndex;
+        tablaBaterias.deleteRow(i);
+    }
+</script>
+
+</html>
