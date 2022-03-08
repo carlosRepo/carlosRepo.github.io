@@ -2,7 +2,7 @@ var player;
 var powerUP;
 
 function setup() {
-    createCanvas(200, 200);
+    createCanvas(700, 600);
     player = new player();
     powerUP = new powerUP();
 }
