@@ -81,6 +81,89 @@
 
     <script src="js/bootstrap.min.js"></script>
     <script src="js/index.js"></script>
+
+    <script>
+        var limit = null;
+        var formule = null;
+        var formule1;
+        var answer = null;
+        var limitLetter = null;
+        var valueTable = [];
+        alert("los elevato a dos y los raiz de 2 tan malos")
+        limit = prompt(`ingrese el limite al que se acerca la función: `, "5");
+        formule = prompt(`ingrese la función: `, "(x^2-8x+15)/(x-5)");
+        //formule = prompt(`ingrese la función: `, "(x*x-8x+15)/(x-5)");
+        formule1 = formule;
+        limitLetter = prompt(`ingrese la letra asociada al límite: `, "x");
+        var newLimit = 0;
+        var z = [0.1, 0.01, 0.001];
+        console.log("replacing the ^2 √x");
+        formule = formule.replaceAll(limitLetter + "^2", "" + limitLetter + "*" + limitLetter + "");
+        formule = formule.replaceAll(limitLetter + "^3", "" + limitLetter + "*" + limitLetter + "" + "*" + limitLetter);
+        formule1 = formule;
+        console.log("Start replacing the " + limitLetter);
+        for (let index = 0; index < 3; index++) {
+            let oldLimit = newLimit;
+            newLimit = parseFloat(limit) - z[index];
+            formule = reeplaceX(formule, limitLetter, newLimit);
+            if (index != 0) {
+                formule = formule.replaceAll(oldLimit, newLimit);
+                console.log(formule);
+            }
+            answer = eval(formule)
+            valueTable[1, index] = answer;
+            console.log(index + "=resp: " + valueTable[1, index]);
+        }
+        console.log(".................................");
+        for (let index = 0; index < 3; index++) {
+            let oldLimit = newLimit;
+            newLimit = parseFloat(limit) + z[index];
+            if (index != 0) {
+                formule1 = formule1.replaceAll(oldLimit, newLimit);
+                console.log(formule1);
+            }
+            formule1 = reeplaceX(formule1, limitLetter, newLimit);
+            answer = eval(formule1);
+            valueTable[0, index] = answer;
+            console.log(index + "=resp: " + valueTable[0, index]);
+        }
+        alert("la respuesta: [" + eval(parseFloat(limit) - 0.1) + " =" + valueTable[0, 0] + "];[" + eval(parseFloat(limit) - 0.01) + " = " + valueTable[0, 1] + "];[" + eval(parseFloat(limit) - 0.001) + " =" + valueTable[0, 2] + "]\n la respuesta: [" + eval(parseFloat(limit) + 0.1) + " =" + valueTable[1, 0] + "];[" + eval(parseFloat(limit) + 0.01) + " = " + valueTable[1, 1] + "];[" + eval(parseFloat(limit) + 0.001) + " =" + valueTable[1, 2] + "]");
+
+        for (let index = 0; index < valueTable.length; index++) {
+            console.log(valueTable[1, index]);
+            console.log(valueTable[0, index]);
+        }
+        console.log("---------");
+        console.log(valueTable[0, 0]);
+        console.log(valueTable[0, 1]);
+        console.log(valueTable[0, 2]);
+        console.log(valueTable[1, 0]);
+        console.log(valueTable[1, 1]);
+        console.log(valueTable[1, 2]);
+
+        function insert(str, index, value) {
+            console.log(str.substring(0, index) + value + str.substring(index + 1));
+            return str.substring(0, index) + value + str.substring(index + 1);
+        }
+
+        function isDigit(n) {
+            return !!n.trim() && n > -1;
+        }
+
+        function reeplaceX(formule, limitLetter, newLimit) {
+            while (formule.indexOf(limitLetter) > 0) {
+                if (isDigit(formule.charAt(formule.indexOf(limitLetter) - 1))) {
+                    formule = formule.replace(limitLetter, "*" + newLimit);
+                } else {
+                    formule = formule.replace(limitLetter, newLimit);
+                };
+            };
+            return formule;
+        }
+    </script>
+
+
+
 </body>
 
 </html>

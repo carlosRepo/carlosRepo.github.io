@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>*hace crecer tu granja de bitcoin mientras puedas sin quedar en banca rota</p>
+    <p>*que la temperatura del pc no pase sobre 100</p>
+    <p>*f5 para empezar a jugar</p>
+    <h1 id="bitcoin"> tiempo de vida del bitcoin : 100 seg</h1>
+    <h1 id="temperatura" style="background-color: rgb(140, 255, 117 );"> temperatura : 10</h1>
+
+    <h1 id="billetera" style="background-color: rgb(140, 255, 117 );">billetera: $500</h1>
+
+    <button onclick="buyRam()">+ ram</button> <label for="" id="precioRam">precio ram: 10</label><br>
+    <button onclick="buyCpu()">+ cpu</button> <label for="" id="precioCpu">precio cpu: 10</label><br>
+    <button onclick="buyGrafica()">+ grafica</button> <label for="" id="precioGrafica">precio grafica: 10</label><br>
+    <button onclick="buyCooler()">+ cooler</button> <label for="" id="precioCooler">precio cooler: 10</label><br>
+
+    <p id="pRam">cantidad de ram: 1, ganancias= ram x3</p>
+    <p id="pCpu">cantidad de cpu: 1, ganancias= cpu x3</p>
+    <p id="pGrafica">cantidad de grafica: 1, ganancias= grafica x4</p>
+    <p id="pCooler">cantidad de cooler: 1, temperatura= -cooler x3</p>
+
+
+    <script>
+        var pBitcoin = document.getElementById("bitcoin")
+        var temperatura = document.getElementById("temperatura")
+        var precioRam = document.getElementById("precioRam")
+        var precioCpu = document.getElementById("precioCpu")
+        var precioGrafica = document.getElementById("precioGrafica")
+        var precioCooler = document.getElementById("precioCooler")
+        var pRam = document.getElementById("pRam")
+        var pCpu = document.getElementById("pCpu")
+        var pGrafica = document.getElementById("pGrafica")
+        var pCooler = document.getElementById("pCooler")
+        var pBilletera = document.getElementById("billetera")
+        var bitcoin = 100;
+
+        var ram = 1;
+        var cpu = 1;
+        var grafica = 1;
+        var cooler = 1;
+        var costoRam = 10;
+        var costoCpu = 10;
+        var costoGrafica = 10;
+        var costoCooler = 10;
+        var billetera = 500;
+        var cantidadTemperatura = 10;
+        buyRam = function() {
+            billetera = billetera - costoRam
+            costoRam = parseInt(costoRam * 1.5);
+            ram++;
+            actualizar();
+        }
+        buyCpu = function() {
+            billetera = billetera - costoCpu
+            costoCpu = parseInt(costoCpu * 1.5);
+            cpu++;
+            actualizar();
+        }
+        buyGrafica = function() {
+            billetera = billetera - costoGrafica
+            costoGrafica = parseInt(costoGrafica * 1.5);
+            grafica++;
+            actualizar();
+        }
+        buyCooler = function() {
+            billetera = billetera - costoCooler
+            costoCooler = parseInt(costoCooler * 1.5);
+            cooler++;
+            actualizar();
+        }
+        var valorMasBajo = 10;
+        actualizar = function() {
+            precioRam.innerHTML = "precio ram: " + costoRam;
+            precioCpu.innerHTML = "precio cpu: " + costoCpu;
+            precioGrafica.innerHTML = "precio grafica: " + costoGrafica;
+            precioCooler.innerHTML = "precio cooler: " + costoCooler;
+            pRam.innerHTML = "cantidad de ram: " + ram + ", ganancias= ram x3";
+            pCpu.innerHTML = "cantidad de cpu: " + cpu + ", ganancias= cpu x3";
+            pGrafica.innerHTML = "cantidad de grafica: " + grafica + ", ganancias= grafica x4";
+            pCooler.innerHTML = "cantidad de cooler: " + cooler + ", temperatura= -cooler x3";
+            pBilletera.innerHTML = "billetera: $" + billetera;
+            temperatura.innerHTML = "temperatura: " + cantidadTemperatura;
+            temperatura.style = "background-color: rgb(140, 255, 117 );"
+            pBilletera.style = "background-color: rgb(140, 255, 117  );"
+            if (cantidadTemperatura >= 25) {
+                temperatura.style = "background-color: rgb(194, 182, 139 );"
+            }
+            if (cantidadTemperatura >= 50) {
+                temperatura.style = "background-color: rgb(222, 130, 66 );"
+            }
+            if (cantidadTemperatura >= 80) {
+                temperatura.style = "background-color: rgb(243, 72, 45 );"
+            }
+            if (billetera < Math.min(costoRam, costoCpu, costoCooler, costoGrafica)) {
+                pBilletera.style = "background-color: rgb(243, 72, 45 );"
+            }
+            if (bitcoin < 75) {
+                pBitcoin.style = "background-color: rgb(222, 130, 66 );"
+            }
+            if (bitcoin < 50) {
+                pBitcoin.style = "background-color: rgb(243, 72, 45 );"
+            }
+            pBitcoin.innerHTML = "tiempo de vida del bitcoin :" + bitcoin;
+        }
+
+        function getPrecioMasBajo(valor, otroPrecio) {
+            if (valor > otroPrecio) {
+                valor = otroPrecio;
+            }
+        }
+
+        function update() {
+            if (billetera < 0) {
+                alert("BANCA ROTA :c, f5 para jugar denuevo")
+                clearInterval(updateTodo)
+            }
+            if (cantidadTemperatura > 100) {
+                alert("se te quemó el pc :c, f5 para jugar denuevo")
+                clearInterval(updateTodo)
+            }
+            if (bitcoin == 0) {
+                alert("Se acabó el tiempo de los bitcoins, ganaste $" + billetera + ", Felicidades c:! .... cuenta de la luz $9999999999999999")
+            }
+            billetera = billetera + (ram * 3) + (cpu * 3) + (grafica * 4)
+            cantidadTemperatura = cantidadTemperatura + (ram * 1.5) + (cpu * 1.5) + (grafica * 1.5) - (cooler * 3)
+            bitcoin--;
+            actualizar()
+            console.log(ram * 3)
+        }
+        var updateTodo = setInterval('update()', 1000);
+    </script>
+</body>
+
+</html>
