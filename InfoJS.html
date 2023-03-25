@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>infoJS</title>
+</head>
+
+<body>splice elmina y agrega en la posicion q se quiera
+    <div>
+        <label for="">para saber si un comando se sigue usando </label>
+        <a href="https://caniuse.com">https://caniuse.com</a>
+    </div>
+    <div>
+        <h1>Tips</h1>
+        <div>
+            <label for="">js es un lenguaje referenciado</label><br>
+            <label for="">Ejemplo:
+                let size=5;
+                let matriz= new Array(size).fill(new Array(size).fill(false));</label>
+            <label for="">esto está rellenando el array nuevo con el mismo array que crea en la primera iteracion por lo que se referencia la ubicacion en la ram y se copian los datos para todos</label>
+        </div>
+        <br>
+        <div>
+            <label for="">presicion con los decimales en algunas divisiones</label><br>
+            <label for="">JavaScript, al igual que otros lenguajes de programación, utilizan una representación interna en punto flotante para los números decimales, lo que puede causar problemas de precisión en algunos casos. En particular, en el caso de 110/1.1, el resultado debería ser exactamente 100, pero debido a la forma en que se almacenan los números decimales en la memoria, se pueden producir pequeñas variaciones en el último dígito o dos.
+            </label><br>
+            <label for="">console.log((110/1.1))</label><br>
+            <label for="">console.log((110/1.1).toFixed(10))</label>
+        </div>
+        <br>
+        <div>
+            no es necesario hacer tanto codigo
+            <img src="/image1.png" width="60%" alt="" srcset="">
+            <img src="/image2.png" width="30%" alt="" srcset="">
+        </div>
+    </div>
+    <div>
+        <h1>operador</h1>
+        <div>
+            <label for="">el operador || devuelve el primer valor verdadero, si encuentra un false, undefinded o un 0 va a utilizar el otro valor como verdadero</label><br>
+            <label for="">aca le suma el valor anterior al original o lo inicializa en 1 si es que lo de la izq es undefined</label><br>
+            <label for="" style="color:green">contador[idx]= ++contador[idx] || 1;</label>
+        </div>
+    </div>
+    <div>
+        <h1>string</h1>
+        <div>
+            <label for="">obtener numero de la letra</label><br>
+            <label for="" style="color:green">char.charCodeAt()</label>
+        </div>
+        <div>
+            <label for="">obtener letra del numero</label><br>
+            <label for="" style="color:green">String.fromCharCode(num)</label>
+        </div>
+        <div>
+            <label for="">verificar que un string tenga solo letras</label><br>
+            <label for="" style="color:green">/^[a-zA-Z]*$/.test(string)</label>
+        </div>
+        <div>
+            <label for="">transformar en string</label><br>
+            <label for="" style="color:green">var.toString();</label>
+        </div>
+        <div>
+            <label for="">dar vuelta un string</label><br>
+            <label for="" style="color:green">text.split('').reverse().join('');</label>
+        </div>
+        <div>
+            <label for="">buscar palabra en un string devuelve un string</label><br>
+            <label for="" style="color:green">text.includes("palabra");</label>
+        </div>
+    </div>
+    <div>
+        <h1>numeros</h1>
+        <div>
+            <label for="">string to int</label><br>
+            <label for="" style="color:green">parseInt(string)</label>
+        </div>
+        <div>
+            <label for="">int to array of int</label><br>
+            <label for="" style="color:green">Array.from(String(numero), Number);</label>
+        </div>
+        <div>
+            <label for="">ver si es digito, regresa verdadero o falso</label><br>
+            <label for="" style="color:green">/\D/.test(char)</label>
+        </div>
+        <div>
+            <label for="">transformar a float</label><br>
+            <label for="" style="color:green">parseFloat(num)</label>
+        </div>
+        <div>
+            <label for="">redondear hacia arriba si tiene .00000000000000001</label><br>
+            <label for="" style="color:green">Math.ceil(9.1)</label>
+        </div>
+        <div>
+            <label for="">mayor y menor numero</label><br>
+            <label for="" style="color:green">Number.POSITIVE_INFINITY</label>
+            <label for="" style="color:green">Number.NEGATIVE_INFINITY</label>
+        </div>
+    </div>
+    <div>
+        <h1>array</h1>
+        <div>
+            <label for="">find entrega el primer valor que cumple la condicion</label><br>
+            <label for="" style="color:green">array.find((num)=> num %2==0)</label>
+        </div>
+
+        <div>
+            <label for="">some, entrega verdadero si ALGUNO de los elementos cumple la condicion</label><br>
+            <label for="" style="color:green">let booleano = array.some((num)=> num %2==0)</label>
+        </div>
+        <div>
+            <label for="">every, entrega verdadero si TODOS de los elementos cumple la condicion</label><br>
+            <label for="" style="color:green">let booleano = array.every((num)=> num %2==0)</label>
+        </div>
+        <div>
+            <label for="">reduce, </label><br>
+            <label for="" style="color:green">array.reduce(function(acumulador, elementoActual, index, array) {
+                // Código que actualiza el acumulador
+              }, valorInicial);</label>
+        </div>
+        <div>
+            <label for="">buscar item</label><br>
+            <label for="" style="color:green">array.indexOf(item);</label>
+        </div>
+        <div>
+            <label for="">ordenar por letra</label><br>
+            <label for="" style="color:green">array.sort();</label>
+        </div>
+        <div>
+            <label for="">elminiar item pór index</label><br>
+            <label for="" style="color:green">array.splice(index,1);</label>
+        </div>
+        <div>
+            <label for="">obtener maximo y minimo de un array</label><br>
+            <label for="" style="color:green">Math.max(...array);</label><br>
+            <label for="" style="color:green">Math.min(...array);</label>
+        </div>
+        <div>
+            <label for="">ordenar numeros</label><br>
+            <label for="" style="color:green">array.sort(function(a, b){return a-b});</label>
+        </div>
+        <div>
+            <label for="">para juntar un array en un String de forma que quede como un texto legible</label><br>
+            <label for="" style="color:green">let text= new Intl.ListFormat('es').format(array)</label><br>
+            <label for="" style="color:green">let text= new Intl.ListFormat('es',{type:'disjunction'}).format(array)</label><br>
+            <label for="" style="color:green">let text= new Intl.ListFormat('es',{type:'conjunction'}).format(array)</label>
+        </div>
+        <div>
+            <label for="">devolver array nuevo y hacerle algo (aca devuelve el doble del valor original)</label><br>
+            <label for="" style="color:green"> array.map(n=> n*2)</label>
+        </div>
+        <div>
+            <label for="">filtrar y devolver array nuevo con lo que cumpla la condicion</label><br>
+            <label for="" style="color:green">array.filter(n=> n %2 !=0)</label>
+        </div>
+        <div>
+            <label for="">juntar arrays dentro de arrays x numero de veces</label><br>
+            <label for="" style="color:green">array.flat(x)</label>
+        </div>
+        <div>
+            <label for="">filtrar y devolver array nuevo y hacerle algo</label><br>
+            <label for="" style="color:green">array.flatMap(n=> n%2!=0 ? n*2:[])</label><br>
+            <label for="">devuelve los textos con mayor length dentro del array</label><br>
+            <label for="" style="color:green">
+            function solution(inputArray) {
+                return inputArray.flatMap((text)=> text.length==Math.max(...inputArray.map((texts)=>texts.length))?text:[])
+            }
+        </label>
+        </div>
+    </div>
+    <div>
+        <h1>map</h1>
+        <div>
+            <label for="">tienen que darle su key y su value</label><br>
+            <label for="">las keys no se pueden repetir</label><br>
+            <label for="" style="color:green">var map1= new Map();</label><br>
+            <label for="" style="color:green">map1.set('key1','val1');</label><br>
+            <label for="" style="color:green">map1.get('key1');</label><br>
+            <label for="" style="color:green">map1.size;</label><br>
+            <label for="" style="color:green">map1.delete('key1');</label><br>
+            <label for="" style="color:green">map1.keys();</label><br>
+            <label for="" style="color:green">map1.values();</label><br>
+            <label for="" style="color:green">map1.entries();</label><br>
+        </div>
+    </div>
+</body>
+<script>
+</script>
+
+</html>
