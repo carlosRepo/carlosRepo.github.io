@@ -30,3 +30,23 @@ h1 {
     font-family: papyrus;
     text-align: center;
 }
+
+.flex-outside {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.in-flex {
+    flex: 1;
+    box-shadow: var(--shadows);
+    border: 1px solid var(--gray-2);
+    max-width: 310px;
+    margin: 15px;
+    position: relative;
+    display: table;
+}
+
+.certificate {
+    width: 100%;
+}
