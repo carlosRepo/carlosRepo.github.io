@@ -2,305 +2,232 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/index.css" rel="stylesheet">
-    <title>Portfolio</title>
-    <link rel="shortcut icon" href="/favicon.ico" />
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/index.css" rel="stylesheet">
+  <title>Portafolio — Carlos Alexis Aguirre Castillo</title>
+  <link rel="shortcut icon" href="/favicon.ico" />
+
 </head>
 
 <body>
-    <br>
-    <div class="container">
-        <div class="row">
-            <div class="col"></div>
-            <div class="col">
-                <h1>Portfolio</h1>
-            </div>
-            <div class="col"></div>
+  <br>
+  <div class="container">
+    <div class="row">
+      <div class="col"></div>
+      <div class="col">
+        <h1>Portafolio</h1>
+      </div>
+      <div class="col"></div>
+    </div>
+  </div>
+
+  <!-- Perfil Personal -->
+<!-- Perfil Personal -->
+<div class="container mt-5" id="perfil">
+  <div class="row">
+    <div class="col-12">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="mb-1">Carlos Alexis Aguirre Castillo</h2>
+          <h5 class="text-muted">Junior Full Stack Developer</h5>
+          <p class="mb-3">
+            Ingeniero en Informática con más de un año de experiencia en desarrollo Full Stack,
+            especializado en backend con <strong>Java Spring</strong> y frontend con <strong>Vue 2 y 3</strong>.
+            Apasionado por la programación, la ciberseguridad y la optimización de rendimiento,
+            disfruto enfrentar nuevos retos y aplicar las últimas tecnologías para construir
+            soluciones escalables y seguras.
+          </p>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  
+<!-- Proyectos + Stack en dos cards -->
+<div class="container mt-4">
+  <div class="row g-4">
+
+    <!-- Card Stack principal -->
+    <div class="col-12 col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h3 class="card-title">Stack principal</h3>
+          <ul class="mb-2">
+            <li><strong>Lenguajes:</strong> Java, JavaScript, Python, PHP, C#.</li>
+            <li><strong>Frameworks:</strong> Spring Boot, Vue 2/3, Node.js, Bootstrap.</li>
+            <li><strong>Bases de datos:</strong> MySQL, MariaDB, SQL Server, MongoDB.</li>
+            <li><strong>Herramientas:</strong> GitHub, IntelliJ, Visual Studio Code, AWS Cognito, Keycloak, Postman.</li>
+            <li><strong>Idiomas:</strong> Español nativo, Inglés C1 avanzado.</li>
+          </ul>
+        </div>
+      </div>
     </div>
 
 
-    <br>
-    <!-- Carousel Data -->
-    <div id="carouselDiv" class="carousel slide" data-bs-ride="carousel">
+    <!-- Card proyectos -->
+<div class="col-12 col-md-6">
+  <div class="card h-100 text-start">
+    <div class="card-body ps-3">
+      <h3 class="card-title ps-3">Proyectos</h3>
 
-        <!-- Indicators/dots -->
-        <div class="carousel-indicators">
-            <button type="button" data-bs-target="#carouselDiv" data-bs-slide-to="0" class="active"></button>
-            <button type="button" data-bs-target="#carouselDiv" data-bs-slide-to="1"></button>
-            <button type="button" data-bs-target="#carouselDiv" data-bs-slide-to="2"></button>
-            <button type="button" data-bs-target="#carouselDiv" data-bs-slide-to="3"></button>
-            <button type="button" data-bs-target="#carouselDiv" data-bs-slide-to="4"></button>
-            <button type="button" data-bs-target="#carouselDiv" data-bs-slide-to="5"></button>
-        </div>
+      <div class="mb-3 ps-3">
+        <a href="https://visionary-cranachan-bdfcbf.netlify.app/" target="_blank">
+          Aplicación de películas (Vue)
+        </a>
+        <p class="text-muted mb-0 small">Frontend en Vue que consume una API pública de películas para mostrar catálogos y detalles.</p>
+      </div>
 
-        <!-- The slideshow/carousel -->
-        <div class="carousel-inner">
-            <div class="carousel-item active ">
-                <a href="https://github.com/carlosRepo" target="_blank"><img src="images/githubIcon.png" alt="githubIcon.png" class="" style="width:25%"></a>
-                <br><br>
-                <br><br>
-                <div class="carousel-caption ">
-                    <h5>Github Account</h5>
-                    <p>A Github Account link.</p>
-                </div>
-            </div>
-            <div class="carousel-item ">
-                <br><br>
-                <a href="https://app.codesignal.com/profile/carlos_a_duj" target="_blank"><img src="images/appcodesignal.png" alt="appCodeSignalIcon.png" class="" style="width:25%"></a>
-                <br><br>
-                <br><br>
-                <div class="carousel-caption ">
-                    <h5>AppCodeSignal Account</h5>
-                    <p>A AppCodeSignal Account link.</p>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <a href="https://visionary-cranachan-bdfcbf.netlify.app/" target="_blank"><img src="images/vue.png" alt="vue.png" class="" style="width:25%"></a>
-                <br><br>
-                <br><br>
-                <div class="carousel-caption">
-                    <h5>Movies page</h5>
-                    <p>A vue project.</p>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <a href="https://chatroom-94au.onrender.com/" target="_blank"><img src="images/chatroomIcon.png" alt="chatroomIcon.png" class="" style="width:25%"></a>
-                <br><br>
-                <br><br>
-                <div class="carousel-caption">
-                    <h5>Chat Room</h5>
-                    <p>A webSocket project.</p>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <a href="https://carlosrepo.github.io/JavascriptGame" target="_blank"><img src="images/gameIcon.JPG" alt="gameIcon.JPG" class="" style="width:25%"></a>
-                <br><br>
-                <br><br>
-                <br><br>
-                <div class="carousel-caption ">
-                    <h5>Javascript Game</h5>
-                    <p style="margin-block-end: 0px;margin-block-start: 0px">made in 1 day</p>
-                    <p>p5.js used</p>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <a href="https://mongobiblioteca.herokuapp.com/" target="_blank"><img src="images/mongodb.png" alt="mongoDBIcon.JPG" class="" style="width:25%"></a>
-                <br><br>
-                <br>
-                <div class="carousel-caption ">
-                    <h5>mongoDB Library</h5>
-                    <p>node.js / handlebars / mongoose</p>
-                </div>
-            </div>
-        </div>
+      <div class="mb-3 ps-3">
+        <a href="https://chatroom-94au.onrender.com/" target="_blank">
+          Chat Room
+        </a>
+        <p class="text-muted mb-0 small">Aplicación en Node.js que usa WebSocket para comunicación en tiempo real entre usuarios.</p>
+      </div>
 
-        <!-- Left and right controls/icons -->
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselDiv" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon"></span>
-    </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselDiv" data-bs-slide="next">
-      <span class="carousel-control-next-icon"></span>
-    </button>
+      <div class="mb-3 ps-3">
+        <a href="https://carlosrepo.github.io/JavascriptGame" target="_blank">
+          Juego en JavaScript
+        </a>
+        <p class="text-muted mb-0 small">Desarrollado en un solo día usando <strong>p5.js</strong>, sin IA ni frameworks adicionales.</p>
+      </div>
+
+      <div class="ps-3">
+        <a href="docs/final6.pdf" target="_blank">
+          Auditoría Curso Bootcamp (PDF)
+        </a>
+        <p class="text-muted mb-0 small">Informe de auditoría realizado como entrega final del bootcamp de programación.</p>
+      </div>
     </div>
-    <br>
-    <h1 id="certificates"><a href="#certificates">Certificates</a></h1>
+  </div>
+</div>
 
-    <div class="flex-outside">
-        <div class="in-flex">
-            <div class="aLink">
-                <p>Professional Backend Course</p>
-                <a href="/certificados/Certificado - Curso Profesional de Backend.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso Profesional de Backend.jpg"></a>
-            </div>
+
+
+
+
+
+    <!-- Card Logros -->
+    <div class="col-12">
+      <div class="card h-100">
+        <div class="card-body">
+          <h3 class="card-title">Logros destacados</h3>
+          <ul class="mb-0">
+            <li>Integración de APIs de pago: migración de <strong>Khipu v2 → v3</strong> con mejoras de seguridad en AWS.</li>
+            <li>Gestión de usuarios: migración a <strong>AWS Cognito</strong> y <strong>Keycloak</strong> en sistemas locales.</li>
+            <li>Autenticación biométrica: implementación de lector dactilar para control de asistencia.</li>
+            <li>Optimización de consultas: reducción de 2 min → 6 seg en producción mediante <code>JOINs</code> y tuning de BD.</li>
+          </ul>
         </div>
-        <div class="in-flex">
-            <div class="aLink">
-                <p>Professional Database Course</p>
-                <a href="/certificados/Certificado - Curso Profesional de Base de Datos.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso Profesional de Base de Datos.jpg"></a>
-            </div>
-        </div>
-        <div class="in-flex">
-            <div class="aLink">
-                <p>Professional JavaScript Course</p>
-                <a href="/certificados/Certificado - Curso Profesional de JavaScript.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso Profesional de JavaScript.jpg"></a>
-            </div>
-        </div>
-    </div>
-    <div class="flex-outside">
-        <div class="in-flex">
-            <div class="aLink">
-                <p>Professional PHP Course</p>
-                <a href="/certificados/Certificado - Curso profesional de PHP.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso profesional de PHP.jpg"></a>
-            </div>
-        </div>
-        <div class="in-flex">
-            <div class="aLink">
-                <p>Professional Python Course</p>
-                <a href="/certificados/Certificado - Curso Profesional de Python.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso Profesional de Python.jpg"></a>
-            </div>
-        </div>
-        <div class="in-flex">
-            <div class="aLink">
-                <p>Professional React Course</p>
-                <a href="/certificados/Certificado - Curso Profesional de React.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso Profesional de React.jpg"></a>
-            </div>
-        </div>
-    </div>
-    <div class="flex-outside">
-        <div class="in-flex">
-            <div class="aLink">
-                <p>Professional Web Development Course</p>
-                <a href="/certificados/Certificado - Curso Profesional Desarrollo Web.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso Profesional Desarrollo Web.jpg"></a>
-            </div>
-        </div>
-        <div class="in-flex">
-            <div class="aLink">
-                <p>Introduction to Cybersecurity Course</p>
-                <a href="/certificados/Certificado introduccion a ciberseguridad CISCO.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado introduccion a ciberseguridad CISCO.jpg"></a>
-            </div>
-        </div>
-        <div class="in-flex">
-            <div class="aLink">
-                <p>Introduction to Data Science</p>
-                <a href="/certificados/Certificado introduccion a data science.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado introduccion a data science.jpg"></a>
-            </div>
-        </div>
+      </div>
     </div>
 
-    <div class="flex-outside">
-        <div class="in-flex">
-            <div class="aLink">
-                <p>JavaScript Essentials</p>
-                <a href="/certificados/Certificado javascript essentials.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado javascript essentials.jpg"></a>
-            </div>
-        </div>
-        <div class="in-flex">
-            <div class="aLink">
-                <p>University Ranking</p>
-                <a href="/certificados/certificado ranking.jpg" target="_blank"><img class="certificate" src="/certificados/certificado ranking.jpg"></a>
-            </div>
-        </div>
-        <div class="in-flex">
-            <div class="aLink">
-                <p>English Level</p>
-                <a href="/certificados/Certificado ingles avanzado EFSET.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado ingles avanzado EFSET.jpg"></a>
-            </div>
-        </div>
+  </div>
+</div>
+
+  <br>
+
+  <h1 id="certificates"><a href="#certificates">Certificates</a></h1>
+
+  <div class="flex-outside">
+    <div class="in-flex">
+      <div class="aLink">
+        <p>Professional Backend Course</p>
+        <a href="/certificados/Certificado - Curso Profesional de Backend.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso Profesional de Backend.jpg" alt="Certificado Backend"></a>
+      </div>
     </div>
-    <!--<a href="https://carlosrepo.github.io/InfoJS.html" target="_blank">info js</a>
-    -->
+    <div class="in-flex">
+      <div class="aLink">
+        <p>Professional Database Course</p>
+        <a href="/certificados/Certificado - Curso Profesional de Base de Datos.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso Profesional de Base de Datos.jpg" alt="Certificado BD"></a>
+      </div>
+    </div>
+    <div class="in-flex">
+      <div class="aLink">
+        <p>Professional JavaScript Course</p>
+        <a href="/certificados/Certificado - Curso Profesional de JavaScript.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso Profesional de JavaScript.jpg" alt="Certificado JS"></a>
+      </div>
+    </div>
+  </div>
+  <div class="flex-outside">
+    <div class="in-flex">
+      <div class="aLink">
+        <p>Professional PHP Course</p>
+        <a href="/certificados/Certificado - Curso profesional de PHP.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso profesional de PHP.jpg" alt="Certificado PHP"></a>
+      </div>
+    </div>
+    <div class="in-flex">
+      <div class="aLink">
+        <p>Professional Python Course</p>
+        <a href="/certificados/Certificado - Curso Profesional de Python.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso Profesional de Python.jpg" alt="Certificado Python"></a>
+      </div>
+    </div>
+    <div class="in-flex">
+      <div class="aLink">
+        <p>Professional React Course</p>
+        <a href="/certificados/Certificado - Curso Profesional de React.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso Profesional de React.jpg" alt="Certificado React"></a>
+      </div>
+    </div>
+  </div>
+  <div class="flex-outside">
+    <div class="in-flex">
+      <div class="aLink">
+        <p>Professional Web Development Course</p>
+        <a href="/certificados/Certificado - Curso Profesional Desarrollo Web.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado - Curso Profesional Desarrollo Web.jpg" alt="Certificado Web"></a>
+      </div>
+    </div>
+    <div class="in-flex">
+      <div class="aLink">
+        <p>Introduction to Cybersecurity Course</p>
+        <a href="/certificados/Certificado introduccion a ciberseguridad CISCO.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado introduccion a ciberseguridad CISCO.jpg" alt="Certificado Ciberseguridad"></a>
+      </div>
+    </div>
+    <div class="in-flex">
+      <div class="aLink">
+        <p>Introduction to Data Science</p>
+        <a href="/certificados/Certificado introduccion a data science.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado introduccion a data science.jpg" alt="Certificado Data Science"></a>
+      </div>
+    </div>
+  </div>
 
+  <div class="flex-outside">
+    <div class="in-flex">
+      <div class="aLink">
+        <p>JavaScript Essentials</p>
+        <a href="/certificados/Certificado javascript essentials.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado javascript essentials.jpg" alt="Certificado JS Essentials"></a>
+      </div>
+    </div>
+    <div class="in-flex">
+      <div class="aLink">
+        <p>University Ranking</p>
+        <a href="/certificados/certificado ranking.jpg" target="_blank"><img class="certificate" src="/certificados/certificado ranking.jpg" alt="Ranking"></a>
+      </div>
+    </div>
+    <div class="in-flex">
+      <div class="aLink">
+        <p>English Level</p>
+        <a href="/certificados/Certificado ingles avanzado EFSET.jpg" target="_blank"><img class="certificate" src="/certificados/Certificado ingles avanzado EFSET.jpg" alt="Inglés EFSET"></a>
+      </div>
+    </div>
+  </div>
 
-    <footer class="footer mt-auto py-1 bg-dark fixed-bottom row">
-        <div class="container text-center">
-            <span class="text-light">Contact  <a class="text-light"href="mailto:calexisaguirre@gmail.com">calexisaguirre@gmail.com</a></span>
-        </div>
-    </footer>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/index.js"></script>
-
-    <script>
-        function limites() {
-            var limit = null;
-            var formule = null;
-            var formule1;
-            var answer = null;
-            var limitLetter = null;
-            var valueTable = [];
-            alert("los elevato a dos y los raiz de 2 tan malos")
-            limit = prompt(`ingrese el limite al que se acerca la función: `, "5");
-            formule = prompt(`ingrese la función: `, "(x^2-8x+15)/(x-5)");
-            //formule = prompt(`ingrese la función: `, "(x*x-8x+15)/(x-5)");
-            formule1 = formule;
-            limitLetter = prompt(`ingrese la letra asociada al límite: `, "x");
-            var newLimit = 0;
-            var z = [0.1, 0.01, 0.001];
-            console.log("replacing the ^2 √x");
-            formule = formule.replaceAll(limitLetter + "^2", "" + limitLetter + "*" + limitLetter + "");
-            formule = formule.replaceAll(limitLetter + "^3", "" + limitLetter + "*" + limitLetter + "" + "*" + limitLetter);
-            formule1 = formule;
-            console.log("Start replacing the " + limitLetter);
-            for (let index = 0; index < 3; index++) {
-                let oldLimit = newLimit;
-                newLimit = parseFloat(limit) - z[index];
-                formule = reeplaceX(formule, limitLetter, newLimit);
-                if (index != 0) {
-                    formule = formule.replaceAll(oldLimit, newLimit);
-                    console.log(formule);
-                }
-                answer = eval(formule)
-                valueTable[1, index] = answer;
-                console.log(index + "=resp: " + valueTable[1, index]);
-            }
-            console.log(".................................");
-            for (let index = 0; index < 3; index++) {
-                let oldLimit = newLimit;
-                newLimit = parseFloat(limit) + z[index];
-                if (index != 0) {
-                    formule1 = formule1.replaceAll(oldLimit, newLimit);
-                    console.log(formule1);
-                }
-                formule1 = reeplaceX(formule1, limitLetter, newLimit);
-                answer = eval(formule1);
-                valueTable[0, index] = answer;
-                console.log(index + "=resp: " + valueTable[0, index]);
-            }
-            alert("la respuesta: [" + eval(parseFloat(limit) - 0.1) + " =" + valueTable[0, 0] + "];[" + eval(parseFloat(limit) - 0.01) + " = " + valueTable[0, 1] + "];[" + eval(parseFloat(limit) - 0.001) + " =" + valueTable[0, 2] + "]\n la respuesta: [" + eval(parseFloat(limit) + 0.1) + " =" + valueTable[1, 0] + "];[" + eval(parseFloat(limit) + 0.01) + " = " + valueTable[1, 1] + "];[" + eval(parseFloat(limit) + 0.001) + " =" + valueTable[1, 2] + "]");
-
-            for (let index = 0; index < valueTable.length; index++) {
-                console.log(valueTable[1, index]);
-                console.log(valueTable[0, index]);
-            }
-            console.log("---------");
-            console.log(valueTable[0, 0]);
-            console.log(valueTable[0, 1]);
-            console.log(valueTable[0, 2]);
-            console.log(valueTable[1, 0]);
-            console.log(valueTable[1, 1]);
-            console.log(valueTable[1, 2]);
-        }
-
-
-        function insert(str, index, value) {
-            console.log(str.substring(0, index) + value + str.substring(index + 1));
-            return str.substring(0, index) + value + str.substring(index + 1);
-        }
-
-        function isDigit(n) {
-            return !!n.trim() && n > -1;
-        }
-
-        function reeplaceX(formule, limitLetter, newLimit) {
-            while (formule.indexOf(limitLetter) > 0) {
-                if (isDigit(formule.charAt(formule.indexOf(limitLetter) - 1))) {
-                    formule = formule.replace(limitLetter, "*" + newLimit);
-                } else {
-                    formule = formule.replace(limitLetter, newLimit);
-                };
-            };
-            return formule;
-        }
-    </script>
-
-
-
+<footer class="footer mt-auto py-2 bg-dark fixed-bottom">
+  <div class="container d-flex justify-content-center align-items-center text-light gap-4 flex-wrap">
+    <span>📧 <a class="text-light" href="mailto:calexisaguirre@gmail.com">calexisaguirre@gmail.com</a></span>
+    <span>📱 <a class="text-light" href="tel:+56932734906">+56 9 3273 4906</a></span>
+    <span>
+      🌐 
+      <a class="text-light" href="https://www.linkedin.com/in/carlosalexisaguirrecastillo/" target="_blank" rel="noopener">LinkedIn</a> |
+      <a class="text-light" href="https://carlosrepo.github.io/" target="_blank" rel="noopener">Portafolio</a> |
+      <a class="text-light" href="https://github.com/carlosRepo" target="_blank" rel="noopener">GitHub</a>
+    </span>
+  </div>
+</footer>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/index.js"></script>
 </body>
-
 </html>

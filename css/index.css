@@ -12,7 +12,13 @@ h1 {
     text-align: center;
     color: black;
 }
-
+.project-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: inline-block;
+}
 .carousel-control-next,
 .carousel-control-prev,
 .carousel-indicators,
