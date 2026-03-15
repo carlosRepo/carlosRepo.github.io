@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Calculadora Hipotecaria UF</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f7fa;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.08);
+}
+
+h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 25px;
+}
+
+.inputs {
+    display: grid;
+    gap: 12px;
+}
+
+label {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.resultados {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.card {
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 10px;
+    border-left: 4px solid #2563eb;
+    font-size: 14px;
+}
+
+.card strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+@media (max-width: 900px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .resultados {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app" class="container">
+
+    <h2>Calculadora Hipotecaria UF</h2>
+
+    <div class="layout">
+
+        <div class="inputs">
+
+            <div>
+                <label>Valor propiedad UF</label>
+                <input v-model.number="valorPropiedadUF" @input="actualizarDesdeUF">
+            </div>
+
+            <div>
+                <label>Valor propiedad CLP</label>
+                <input
+                    :value="valorPropiedadCLP"
+                    @input="valorPropiedadCLP = $event.target.value; actualizarDesdeCLP()"
+                >
+            </div>
+
+            <div>
+                <label>UF actual</label>
+                <input v-model.number="uf" @input="actualizarDesdeUF">
+            </div>
+
+            <div>
+                <label>Tasa anual (%)</label>
+                <input v-model.number="tasa">
+            </div>
+
+            <div>
+                <label>Años</label>
+                <input v-model.number="anios">
+            </div>
+
+            <div>
+                <label>Pie (%)</label>
+                <input v-model.number="porcentajePie">
+            </div>
+
+        </div>
+
+        <div class="resultados">
+
+            <div class="card">
+                <strong>Pie ({{ porcentajePie }}%)</strong>
+                {{ pieUF.toFixed(2) }} UF<br>
+                {{ formatearMoneda(pieUF * uf) }}
+            </div>
+
+            <div class="card">
+                <strong>Gastos operacionales</strong>
+                {{ gastosOperacionalesUF.toFixed(2) }} UF<br>
+                {{ formatearMoneda(gastosOperacionalesUF * uf) }}
+            </div>
+
+            <div class="card">
+                <strong>Pago inicial total</strong>
+                {{ pagoInicialUF.toFixed(2) }} UF<br>
+                {{ formatearMoneda(pagoInicialUF * uf) }}
+            </div>
+
+            <div class="card">
+                <strong>Monto solicitado al banco</strong>
+                {{ creditoUF.toFixed(2) }} UF<br>
+                {{ formatearMoneda(creditoUF * uf) }}
+            </div>
+
+            <div class="card">
+                <strong>Dividendo mensual real</strong>
+                {{ cuotaConSeguroUF.toFixed(2) }} UF<br>
+                {{ formatearMoneda(cuotaConSeguroUF * uf) }}
+            </div>
+
+            <div class="card">
+                <strong>Total pagado al banco</strong>
+                {{ totalPagadoBancoUF.toFixed(2) }} UF<br>
+                {{ formatearMoneda(totalPagadoBancoUF * uf) }}
+            </div>
+
+            <div class="card">
+                <strong>Costo intereses</strong>
+                {{ costoInteresesUF.toFixed(2) }} UF<br>
+                {{ formatearMoneda(costoInteresesUF * uf) }}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+    data() {
+        return {
+            valorPropiedadUF: 3000,
+            valorPropiedadCLP: '',
+            uf: 39841.72,
+            tasa: 4.7,
+            anios: 30,
+            porcentajePie: 10,
+            gastosOperacionalesUF: 49.82,
+            seguroUF: 0.8055
+        }
+    },
+
+    computed: {
+        pieUF() {
+            return this.valorPropiedadUF * (this.porcentajePie / 100);
+        },
+
+        creditoUF() {
+            return this.valorPropiedadUF - this.pieUF;
+        },
+
+        cuotaUF() {
+            const tasaMensual = Math.pow(1 + (this.tasa / 100), 1 / 12) - 1;
+            const meses = this.anios * 12;
+
+            return this.creditoUF *
+                (tasaMensual * Math.pow(1 + tasaMensual, meses)) /
+                (Math.pow(1 + tasaMensual, meses) - 1);
+        },
+
+        cuotaConSeguroUF() {
+            return this.cuotaUF + this.seguroUF;
+        },
+
+        pagoInicialUF() {
+            return this.pieUF + this.gastosOperacionalesUF;
+        },
+
+        totalPagadoBancoUF() {
+            return this.cuotaConSeguroUF * (this.anios * 12);
+        },
+
+        costoInteresesUF() {
+            return this.totalPagadoBancoUF - this.creditoUF;
+        }
+    },
+
+    methods: {
+        formatearMoneda(valor) {
+            return new Intl.NumberFormat('es-CL', {
+                style: 'currency',
+                currency: 'CLP',
+                minimumFractionDigits: 0
+            }).format(valor);
+        },
+
+        formatearNumero(valor) {
+            return new Intl.NumberFormat('es-CL')
+                .format(Math.round(valor));
+        },
+
+        actualizarDesdeUF() {
+            this.valorPropiedadCLP = this.formatearNumero(this.valorPropiedadUF * this.uf);
+        },
+
+        actualizarDesdeCLP() {
+            const limpio = parseFloat(
+                this.valorPropiedadCLP.toString()
+                    .replace(/\./g, '')
+                    .replace(',', '.')
+            );
+
+            if (!isNaN(limpio)) {
+                this.valorPropiedadUF = +(limpio / this.uf).toFixed(2);
+                this.valorPropiedadCLP = this.formatearNumero(limpio);
+            }
+        },
+
+        async cargarUFActual() {
+            try {
+                const hoy = new Date();
+                const dia = String(hoy.getDate()).padStart(2, '0');
+                const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+                const anio = hoy.getFullYear();
+
+                const fecha = `${dia}-${mes}-${anio}`;
+
+                const response = await fetch(`https://mindicador.cl/api/uf/${fecha}`);
+                const data = await response.json();
+
+                if (data.serie && data.serie.length > 0) {
+                    this.uf = data.serie[0].valor;
+                    this.actualizarDesdeUF();
+                }
+
+            } catch (error) {
+                console.error('No se pudo cargar UF actual:', error);
+                this.actualizarDesdeUF();
+            }
+        }
+    },
+
+    mounted() {
+        this.cargarUFActual();
+    }
+}).mount('#app');
+</script>
+
+</body>
+</html>
