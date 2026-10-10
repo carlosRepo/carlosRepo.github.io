@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi progreso</title>
+<style>
+:root{
+  color-scheme:light;
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10); --good:#006300;
+  --s1:#2a78d6; --s2:#eb6834; --seq-lo:#cde2fb; --seq:#2a78d6;
+}
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme:dark;
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --good:#0ca30c;
+    --s1:#3987e5; --s2:#d95926; --seq-lo:#184f95; --seq:#3987e5;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --good:#0ca30c;
+  --s1:#3987e5; --s2:#d95926; --seq-lo:#184f95; --seq:#3987e5;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1440px;margin:0 auto;padding:24px 16px 64px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:20px;align-items:start}
+.main{min-width:0}
+#exPanel{position:sticky;top:16px;max-height:calc(100vh - 32px);display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--ring);border-radius:12px;overflow:hidden}
+#exPanel .ph{padding:14px 14px 10px;border-bottom:1px solid var(--grid)}
+#exPanel .ph b{font-size:15px}
+#exPanel .ph .x{float:right;display:none}
+#exSearch{font:inherit;color:var(--ink);background:var(--page);border:1px solid var(--ring);border-radius:8px;padding:8px 10px;width:100%;margin-top:8px}
+#exList{overflow-y:auto;padding:6px;flex:1;-webkit-overflow-scrolling:touch}
+.exg{position:sticky;top:0;z-index:1;background:var(--surface);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);padding:10px 10px 4px;margin-top:4px;border-bottom:1px solid var(--grid)}
+.exg span{font-weight:400;float:right}
+.exi{display:block;width:100%;text-align:left;background:none;border:1px solid transparent;border-radius:8px;padding:9px 10px;margin:0 0 2px;min-height:44px}
+.exi:hover{background:var(--grid)}
+.exi .n{font-weight:500;display:block;line-height:1.25}
+.exi .m{font-size:12px;color:var(--ink2)}
+.exi.on{background:var(--ink);color:var(--surface)}
+.exi.on .m{color:var(--surface);opacity:.75}
+#exFab,#exBack{display:none}
+@media(max-width:1000px){
+  .layout{display:block}
+  #exPanel{position:fixed;top:0;right:0;bottom:0;width:min(86vw,340px);max-height:none;border-radius:12px 0 0 12px;z-index:30;transform:translateX(105%);transition:transform .22s ease;box-shadow:-8px 0 30px rgba(0,0,0,.25)}
+  body.exopen #exPanel{transform:none}
+  #exPanel .ph .x{display:inline-block}
+  #exBack{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20}
+  body.exopen #exBack{display:block}
+  body.exopen{overflow:hidden}
+  #exFab{display:flex;align-items:center;gap:8px;position:fixed;right:14px;bottom:14px;z-index:15;max-width:calc(100vw - 28px);padding:12px 16px;border-radius:999px;background:var(--ink);color:var(--surface);border:none;box-shadow:0 4px 16px rgba(0,0,0,.3);font-weight:600}
+  #exFab span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .wrap{padding:16px 12px 90px}
+  h1{font-size:21px}
+  .tiles{grid-template-columns:repeat(2,1fr);gap:8px}
+  .tile{padding:10px 12px}.tile .v{font-size:22px}
+  .card{padding:12px}
+  button{padding:9px 12px}
+  .row .grow{display:none}
+  .seg{flex-wrap:wrap}
+  .legend{flex-wrap:wrap}
+  .goalgrid{grid-template-columns:1fr}
+}
+.curex{display:none}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:24px;margin:0 0 2px}
+.sub{color:var(--ink2);font-size:13px}
+button{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--ring);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:hover{background:var(--grid)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.tile,.card{background:var(--surface);border:1px solid var(--ring);border-radius:12px}
+.tile{padding:14px 16px}
+.tile .v{font-size:28px;font-weight:600;line-height:1.1}
+.tile .l{color:var(--ink2);font-size:13px;margin-top:4px}
+.card{padding:16px;margin-bottom:16px}
+.card h2{font-size:16px;margin:0}
+.card .hint{color:var(--ink2);font-size:13px;margin:2px 0 12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.row .grow{flex:1}
+select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--ring);border-radius:8px;padding:6px 10px;max-width:100%}
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.tt{position:fixed;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--ring);border-radius:8px;padding:6px 10px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.18);white-space:nowrap;z-index:5;display:none}
+.tt b{display:block;font-weight:600}
+.tt span{color:var(--ink2)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-weight:500;color:var(--ink2);text-align:right;padding:6px 8px;border-bottom:1px solid var(--axis);font-size:12px}
+td{padding:7px 8px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{color:var(--ink)}
+th[aria-sort="ascending"]::after{content:" ▲";font-size:10px}
+th[aria-sort="descending"]::after{content:" ▼";font-size:10px}
+tr.sel td{background:var(--grid)}
+tbody tr{cursor:pointer}
+.name{background:none;border:none;padding:0;font-weight:500;text-decoration:underline dotted var(--muted);text-underline-offset:3px;cursor:text}
+.up{color:var(--good);font-weight:500}
+.dn{color:var(--ink2)}
+.scroll{overflow-x:auto}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.two{grid-template-columns:1fr}}
+.two .card{margin-bottom:0}
+.tview{max-height:320px;overflow:auto}
+.note{background:var(--surface);border:1px solid var(--ring);border-left:4px solid var(--s2);border-radius:12px;padding:12px 16px;margin-bottom:16px;color:var(--ink2);font-size:14px}
+.info{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink2);margin:10px 0 0}
+.info b{color:var(--ink);font-weight:600}
+.legend i.ln{width:18px;height:0;border-radius:0;border-top:2px dashed var(--muted);vertical-align:3px}
+.detail{margin-top:14px;border-top:1px solid var(--grid);padding-top:12px}
+.detail h3{font-size:14px;margin:0 0 6px}
+.detail .x{float:right}
+.seg{display:inline-flex}
+.seg button{border-radius:0;margin-left:-1px}
+.seg button:first-child{border-radius:8px 0 0 8px;margin-left:0}
+.seg button:last-child{border-radius:0 8px 8px 0}
+tr.bestset td{font-weight:600}
+.goalgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:800px){.goalgrid{grid-template-columns:1fr}}
+#muscleCard h3{font-size:14px;margin:0 0 8px}
+.goalgrid h3,.restcard h3{font-size:14px;margin:0 0 8px}
+input[type=number]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--ring);border-radius:8px;padding:6px 10px;width:96px}
+.bar{height:10px;background:var(--grid);border-radius:5px;overflow:hidden;margin:8px 0 6px}
+.bar i{display:block;height:100%;background:var(--s1);border-radius:5px}
+.big{font-size:22px;font-weight:600}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--grid);font-size:14px}
+.kv span:first-child{color:var(--ink2)}
+.small{font-size:13px;color:var(--ink2)}
+details.gl{padding:0}
+details.gl summary{cursor:pointer;padding:14px 16px;font-weight:600;font-size:16px}
+details.gl dl{margin:0;padding:0 16px 16px;display:grid;grid-template-columns:max-content 1fr;gap:10px 18px}
+details.gl dt{font-weight:600}
+details.gl dd{margin:0;color:var(--ink2)}
+details.gl code{background:var(--grid);padding:1px 6px;border-radius:4px;font-size:13px}
+@media(max-width:600px){details.gl dl{grid-template-columns:1fr;gap:2px}details.gl dd{margin-bottom:10px}}
+th[title],.tile[title]{cursor:help}
+.legend{display:flex;gap:14px;font-size:13px;color:var(--ink2);margin-bottom:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Mi progreso</h1>
+      <div class="sub" id="range"></div>
+    </div>
+    <button id="theme" type="button" aria-label="Cambiar tema">Tema</button>
+  </header>
+
+  <div class="layout"><div class="main">
+  <div class="note" id="note"></div>
+  <div class="tiles" id="tiles"></div>
+
+  <details class="card gl">
+    <summary>¿Qué significa cada cosa?</summary>
+    <dl>
+      <dt>Días entrenados</dt><dd>Días distintos en los que registraste al menos una serie. Dos ejercicios el mismo día cuentan como un día.</dd>
+      <dt>Días por semana</dt><dd>Días entrenados divididos entre las semanas que pasaron desde tu primer registro. Mide tu constancia.</dd>
+      <dt>Series</dt><dd>Cada bloque de repeticiones seguidas con un mismo peso. Ejemplo: 68 kg × 10 reps es una serie. Incluye los calentamientos.</dd>
+      <dt>Volumen</dt><dd>Peso × repeticiones de cada serie, sumado. Ejemplo: 68 kg × 10 reps = 680 kg. Es una medida de cuánto trabajo hiciste, no de cuánto levantas como máximo. En el resumen total se muestra en toneladas (1 t = 1.000 kg).</dd>
+      <dt>Peso máximo</dt><dd>El peso más alto que usaste en ese ejercicio ese día, sin importar las repeticiones.</dd>
+      <dt>1RM estimado</dt><dd>El peso máximo que podrías levantar a una sola repetición, calculado con la fórmula de Epley: <code>peso × (1 + reps ÷ 30)</code>. Ejemplo: 68 kg × 10 reps ≈ 91 kg. Sirve para comparar series con distintas repeticiones. Es una estimación, no un máximo real, y se vuelve menos fiable por encima de 10 repeticiones. En cada día se usa tu mejor serie.</dd>
+      <dt>Récord (punto naranja)</dt><dd>Un día en que superaste tu mejor marca anterior en la métrica elegida. El primer registro no cuenta como récord porque no hay nada con qué compararlo.</dd>
+      <dt>Línea punteada</dt><dd>Tendencia general del periodo que estás viendo. Si sube, avanzas, aunque algún día haya salido flojo. Es una recta de mejor ajuste y se resume como kg por mes.</dd>
+      <dt>Ordenar tablas</dt><dd>Haz clic en el encabezado de una columna para ordenar la tabla (las de números parten de mayor a menor, el texto de A a Z). Otro clic invierte el orden. Funciona en el resumen por ejercicio, el descanso por ejercicio, la vista de tabla del gráfico y el detalle de un día.</dd>
+      <dt>Periodo</dt><dd>Limita el gráfico principal y el volumen semanal a este año (desde el 1 de enero), los últimos 6 meses, 3 meses, 30 días o todo el historial.</dd>
+      <dt>Detalle del día</dt><dd>Haz clic en un punto del gráfico para ver todas las series de ese día, calentamientos incluidos.</dd>
+      <dt>Antes de la app (círculo hueco)</dt><dd>Datos de antes de usar la app. El <b>historial de Smart Fit</b> (abr-may 2025) trae solo el peso por día; asumo 12 repeticiones. Las <b>notas de Keep</b> no traían fecha, así que su fecha está estimada. Las <b>marcas históricas</b> (por ejemplo tu máximo en la prensa) tienen fecha real, con 4 repeticiones al peso máximo de la máquina. Salen como círculos huecos y no cuentan en los totales. El primer dato de cada ejercicio es el primero que me diste, sin inicios estimados.</dd>
+      <dt>Meta de 1RM</dt><dd>El 1RM estimado que quieres alcanzar en un ejercicio. El panel muestra tu avance, la fecha estimada si sigues al ritmo de las últimas 12 semanas y cuánto tendrías que subir por mes para lograrla en 3 meses.</dd>
+      <dt>Con qué peso entrenar</dt><dd>El peso con el que harías 1, 3, 5, 8, 10 o 12 repeticiones, calculado desde tu 1RM estimado (Epley al revés). Útil para elegir la carga de hoy y para saber qué peso corresponde a tu meta.</dd>
+      <dt>Epley, Brzycki, Lombardi</dt><dd>Tres fórmulas distintas para estimar el 1RM. Dan valores parecidos con pocas repeticiones y se separan al subir de 10. Si las tres coinciden, la estimación es más confiable.</dd>
+      <dt>Fuerza relativa</dt><dd>Tu 1RM estimado dividido entre tu peso corporal de ese día. Permite compararte contigo mismo aunque cambie tu peso, y es el botón "Fuerza relativa" del gráfico. Los pesos entre pesajes se interpolan, y antes de tu primer pesaje (12 jun 2025) asumo 113 kg. Entre jun 2025 y jul 2026 no hay pesajes, así que ahí el peso es una estimación en línea recta y la fuerza relativa de ese tramo es aproximada.</dd>
+      <dt>Dominadas asistidas</dt><dd>En ese ejercicio el peso que registras es la <b>ayuda</b> de la máquina: menos ayuda es mejor. Para el 1RM, el volumen y la fuerza relativa uso tu carga real: <code>peso corporal − ayuda</code>. En "Peso máximo" ves la ayuda mínima del día, y ahí un récord es bajar la ayuda.</dd>
+      <dt>Máquinas con distinta escala</dt><dd>Haces el mismo tríceps (polea con barra recta) en dos máquinas con distinta escala de peso: 30 kg en la máquina 1 se sienten como 60–70 kg en la máquina 2, así que sus kilos no son comparables. En el volumen total y el semanal, la máquina 2 cuenta a la mitad por eso (es un ajuste aproximado; en su propio gráfico se ve con sus kilos reales).</dd>
+      <dt>✅ Peso máximo de la máquina</dt><dd>La marca verde aparece al inicio del nombre de las máquinas en las que ya llegaste al tope (por ejemplo 186,8 kg en la prensa o 111,4 kg en abdominales). El panel de metas te avisa y calcula cuántas repeticiones necesitarías para tu meta con ese peso. Los topes están en el programa; si una máquina nueva llega a su máximo, dime cuál es.</dd>
+      <dt>Músculos trabajados</dt><dd>Porcentaje estimado del trabajo que recibe cada músculo en un ejercicio. Por ejemplo, fondos de pecho en máquina: pecho 60%, tríceps 20%, hombros 20%. Son valores típicos aproximados, no mediciones. El reparto total suma esos porcentajes serie por serie, y no incluye lo que no registras en la app.</dd>
+      <dt>Recuperación por músculo</dt><dd>Horas orientativas de descanso antes de volver a entrenar un músculo fuerte. Las cifras de pecho, hombros, espalda, bíceps, tríceps y cuádriceps salen de un blog de fitness; las demás son aproximaciones mías. El estado compara con tu último entrenamiento registrado.</dd>
+      <dt>Peso corporal</dt><dd>Tus pesajes del archivo Quantia, con tendencia, ritmo en kg por semana y proyección hacia tu meta de peso. En alimentación solo cuentan los días con calorías registradas.</dd>
+      <dt>Descanso entre series</dt><dd>Tiempo entre una serie y la siguiente, calculado con la hora en que registraste cada una. Incluye la duración de la serie, así que un descanso de 3 min aparece como ~4 min.</dd>
+      <dt>Mejor serie</dt><dd>La serie de ese día con el 1RM estimado más alto. Aparece al pasar el cursor sobre un punto.</dd>
+      <dt>Volumen semanal</dt><dd>El volumen total de todos los ejercicios en cada semana, de lunes a domingo. Las semanas sin entrenar aparecen en cero.</dd>
+      <dt>Cambio</dt><dd>Qué tanto subió o bajó tu 1RM estimado: de la primera vez que hiciste el ejercicio a la última. <b>▲</b> es mejora.</dd>
+      <dt>Tendencia</dt><dd>Minigráfico con la evolución de tu 1RM estimado en ese ejercicio. Solo muestra la forma de la curva, sin escala.</dd>
+    </dl>
+  </details>
+
+  <section class="card">
+    <h2>Evolución por ejercicio</h2>
+    <p class="hint">Mejor serie de cada sesión. El 1RM estimado usa la fórmula de Epley: peso × (1 + reps/30).</p>
+    <div class="row">
+      <select id="ex" aria-label="Ejercicio" hidden></select>
+      <h3 id="curEx" style="margin:0;font-size:17px"></h3>
+      <span class="grow"></span>
+      <button type="button" data-m="e1rm" aria-pressed="true">1RM estimado</button>
+      <button type="button" data-m="maxw" aria-pressed="false">Peso máximo</button>
+      <button type="button" data-m="vol" aria-pressed="false">Volumen</button>
+      <button type="button" data-m="rel" aria-pressed="false" title="1RM estimado ÷ tu peso corporal de ese día">Fuerza relativa</button>
+      <button type="button" id="tbl" aria-pressed="false">Ver tabla</button>
+    </div>
+    <div class="row">
+      <span class="sub">Periodo</span>
+      <span class="seg">
+        <button type="button" data-r="0" aria-pressed="true">Todo</button>
+        <button type="button" data-r="-1" aria-pressed="false">Este año</button>
+        <button type="button" data-r="180" aria-pressed="false">6 meses</button>
+        <button type="button" data-r="90" aria-pressed="false">3 meses</button>
+        <button type="button" data-r="30" aria-pressed="false">1 mes</button>
+      </span>
+    </div>
+    <div class="legend" id="mainLegend"></div>
+    <div class="chart" id="main"></div>
+    <div class="info" id="mainInfo"></div>
+    <div class="detail" id="detail" hidden></div>
+    <div class="tview" id="mainTable" hidden></div>
+  </section>
+
+  <section class="card" id="goalCard">
+    <h2>Metas y objetivos</h2>
+    <p class="hint">Para el ejercicio elegido arriba. Fija una meta de 1RM estimado y mira cuánto falta, cuándo la alcanzarías y con qué peso entrenar hoy.</p>
+    <div class="goalgrid">
+      <div id="goalBox"></div>
+      <div id="repTable"></div>
+    </div>
+    <div class="info" id="formulas"></div>
+    <div class="row" style="margin:14px 0 0">
+      <label class="sub" for="bw">Peso actual</label>
+      <input id="bw" type="number" min="30" max="250" step="0.1" placeholder="kg">
+      <span class="small" id="bwInfo"></span>
+    </div>
+  </section>
+
+  <section class="card" id="muscleCard">
+    <h2>Músculos trabajados</h2>
+    <p class="hint">Reparto estimado del trabajo entre músculos. Son valores típicos para cada ejercicio, no una medición tuya: cambian según la máquina, el agarre y la técnica.</p>
+    <div class="two">
+      <div><h3 id="mxTitle"></h3><div class="chart" id="mxEx"></div></div>
+      <div><h3 id="mxAllTitle"></h3><div class="chart" id="mxAll"></div></div>
+    </div>
+    <div class="info" id="mxNote"></div>
+  </section>
+
+  <section class="card" id="bodyCard">
+    <h2>Peso corporal y alimentación</h2>
+    <p class="hint" id="bodyHint"></p>
+    <div class="two">
+      <div><div class="chart" id="wChart"></div><div class="info" id="wInfo"></div></div>
+      <div id="bodyStats"></div>
+    </div>
+  </section>
+
+  <section class="card restcard">
+    <h2>Tu descanso entre series</h2>
+    <p class="hint" id="restHint"></p>
+    <div class="two">
+      <div><h3>Por mes (mediana)</h3><div class="chart" id="restChart"></div></div>
+      <div><h3>Por ejercicio (mediana)</h3><div class="scroll" id="restTable"></div></div>
+    </div>
+  </section>
+
+  <div class="two">
+    <section class="card">
+      <h2>Volumen semanal</h2>
+      <p class="hint">Suma de peso × repeticiones de todas las series.</p>
+      <div class="chart" id="weekly"></div>
+    </section>
+    <section class="card">
+      <h2>Series por ejercicio</h2>
+      <p class="hint">Cuánto has entrenado cada uno.</p>
+      <div class="chart" id="sets"></div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Resumen por ejercicio</h2>
+    <p class="hint">Comparación entre tu primer y último 1RM estimado en cada ejercicio. ✅ = ya llegaste al peso máximo de esa máquina. Haz clic en una fila para verla arriba, en el nombre para renombrarla y en un encabezado para ordenar la tabla.</p>
+    <div class="scroll"><table id="summary"></table></div>
+  </section>
+  <section class="card" id="recCard">
+    <h2>Cuánto demora en recuperarse cada músculo</h2>
+    <p class="hint">Tiempos orientativos entre dos entrenamientos fuertes del mismo músculo. La última columna usa tus registros: cuándo fue la última vez que trabajaste ese músculo de forma importante (30% o más del ejercicio).</p>
+    <div class="scroll"><table id="recTable"></table></div>
+    <div class="info" id="recNote"></div>
+  </section>
+  </div>
+  <aside id="exPanel" aria-label="Elegir ejercicio">
+    <div class="ph"><button type="button" class="x" id="exClose">Cerrar</button><b>Ejercicios</b><input id="exSearch" type="search" placeholder="Buscar ejercicio…" autocomplete="off"></div>
+    <div id="exList"></div>
+  </aside>
+  </div>
+</div>
+<button type="button" id="exFab" aria-label="Elegir ejercicio">🏋 <span id="exFabName"></span> ▸</button>
+<div id="exBack"></div>
+<div class="tt" id="tt"></div>
+
+<script>
+const DATA = {"sessions":[{"s":1743541200000,"e":null,"n":1,"f":1},{"s":1743542400000,"e":null,"n":1,"f":1},{"s":1743543600000,"e":null,"n":1,"f":1},{"s":1743544800000,"e":null,"n":1,"f":1},{"s":1744149600000,"e":null,"n":1,"f":1},{"s":1744150800000,"e":null,"n":1,"f":1},{"s":1744152000000,"e":null,"n":1,"f":1},{"s":1744153200000,"e":null,"n":1,"f":1},{"s":1744754400000,"e":null,"n":1,"f":1},{"s":1744755600000,"e":null,"n":1,"f":1},{"s":1744756800000,"e":null,"n":1,"f":1},{"s":1744758000000,"e":null,"n":1,"f":1},{"s":1745186400000,"e":null,"n":1,"f":1},{"s":1745187600000,"e":null,"n":1,"f":1},{"s":1745188800000,"e":null,"n":1,"f":1},{"s":1745190000000,"e":null,"n":1,"f":1},{"s":1745359200000,"e":null,"n":1,"f":1},{"s":1745360400000,"e":null,"n":1,"f":1},{"s":1745361600000,"e":null,"n":1,"f":1},{"s":1745362800000,"e":null,"n":1,"f":1},{"s":1745532000000,"e":null,"n":1,"f":1},{"s":1745533200000,"e":null,"n":1,"f":1},{"s":1745534400000,"e":null,"n":1,"f":1},{"s":1745535600000,"e":null,"n":1,"f":1},{"s":1746570000000,"e":null,"n":1,"f":1},{"s":1747173600000,"e":null,"n":1,"f":1},{"s":1747176000000,"e":null,"n":1,"f":1},{"s":1747346400000,"e":null,"n":1,"f":1},{"s":1747347600000,"e":null,"n":1,"f":1},{"s":1747348800000,"e":null,"n":1,"f":1},{"s":1747778400000,"e":null,"n":1,"f":1},{"s":1747780800000,"e":null,"n":1,"f":1},{"s":1747951200000,"e":null,"n":1,"f":1},{"s":1748384400000,"e":null,"n":1,"f":1},{"s":1748385600000,"e":null,"n":1,"f":1},{"s":1748556000000,"e":null,"n":1,"f":1},{"s":1748557200000,"e":null,"n":1,"f":1},{"s":1748559600000,"e":null,"n":1,"f":1},{"s":1748730000000,"e":null,"n":1,"f":1},{"s":1748731200000,"e":null,"n":1,"f":1},{"s":1748732400000,"e":null,"n":1,"f":1},{"s":1749934800000,"e":null,"c":1},{"s":1749936300000,"e":null,"c":1},{"s":1749937800000,"e":null,"c":1},{"s":1750194000000,"e":null,"c":1},{"s":1750195500000,"e":null,"c":1},{"s":1750366800000,"e":null,"c":1},{"s":1750368300000,"e":null,"c":1},{"s":1750539600000,"e":null,"c":1},{"s":1750541100000,"e":null,"c":1},{"s":1750542600000,"e":null,"c":1},{"s":1750544100000,"e":null,"c":1},{"s":1750971600000,"e":null,"c":1},{"s":1750973100000,"e":null,"c":1},{"s":1750974600000,"e":null,"c":1},{"s":1751144400000,"e":null,"c":1},{"s":1751403600000,"e":null,"c":1},{"s":1751407200000,"e":null,"n":1,"h":1},{"s":1751576400000,"e":null,"c":1},{"s":1751577900000,"e":null,"c":1},{"s":1751579400000,"e":null,"c":1},{"s":1751749200000,"e":null,"c":1},{"s":1752526800000,"e":null,"c":1},{"s":1752528300000,"e":null,"c":1},{"s":1752613200000,"e":null,"c":1},{"s":1752786000000,"e":null,"c":1},{"s":1752787500000,"e":null,"c":1},{"s":1752789000000,"e":null,"c":1},{"s":1752790500000,"e":null,"c":1},{"s":1752958800000,"e":null,"c":1},{"s":1752960300000,"e":null,"c":1},{"s":1752961800000,"e":null,"c":1},{"s":1752963300000,"e":null,"c":1},{"s":1753563600000,"e":null,"c":1},{"s":1753565100000,"e":null,"c":1},{"s":1753566600000,"e":null,"c":1},{"s":1754168400000,"e":null,"c":1},{"s":1754169900000,"e":null,"c":1},{"s":1754171400000,"e":null,"c":1},{"s":1754427600000,"e":null,"c":1},{"s":1754429100000,"e":null,"c":1},{"s":1754600400000,"e":null,"c":1},{"s":1755205200000,"e":null,"c":1},{"s":1755208800000,"e":null,"n":1,"h":1},{"s":1755291600000,"e":null,"c":1},{"s":1755637200000,"e":null,"c":1},{"s":1755638700000,"e":null,"c":1},{"s":1755810000000,"e":null,"c":1},{"s":1755811500000,"e":null,"c":1},{"s":1755982800000,"e":null,"c":1},{"s":1757019600000,"e":null,"c":1},{"s":1757021100000,"e":null,"c":1},{"s":1757022600000,"e":null,"c":1},{"s":1757192400000,"e":null,"c":1},{"s":1757448000000,"e":null,"c":1},{"s":1757449500000,"e":null,"c":1},{"s":1757620800000,"e":null,"c":1},{"s":1757966400000,"e":null,"c":1},{"s":1758571200000,"e":null,"c":1},{"s":1758572700000,"e":null,"c":1},{"s":1758657600000,"e":null,"c":1},{"s":1758659100000,"e":null,"c":1},{"s":1758744000000,"e":null,"c":1},{"s":1758745500000,"e":null,"c":1},{"s":1758830400000,"e":null,"c":1},{"s":1759435200000,"e":null,"c":1},{"s":1759436700000,"e":null,"c":1},{"s":1759438200000,"e":null,"c":1},{"s":1759608000000,"e":null,"c":1},{"s":1759609500000,"e":null,"c":1},{"s":1759611000000,"e":null,"c":1},{"s":1759780800000,"e":null,"c":1},{"s":1760212800000,"e":null,"c":1},{"s":1760214300000,"e":null,"c":1},{"s":1760215800000,"e":null,"c":1},{"s":1760217300000,"e":null,"c":1},{"s":1760385600000,"e":null,"c":1},{"s":1760387100000,"e":null,"c":1},{"s":1760388600000,"e":null,"c":1},{"s":1760472000000,"e":null,"c":1},{"s":1760473500000,"e":null,"c":1},{"s":1761076800000,"e":null,"c":1},{"s":1761078300000,"e":null,"c":1},{"s":1761079800000,"e":null,"c":1},{"s":1761081300000,"e":null,"c":1},{"s":1761163200000,"e":null,"c":1},{"s":1761164700000,"e":null,"c":1},{"s":1761166200000,"e":null,"c":1},{"s":1761167700000,"e":null,"c":1},{"s":1761249600000,"e":null,"c":1},{"s":1761251100000,"e":null,"c":1},{"s":1761508800000,"e":null,"c":1},{"s":1761510300000,"e":null,"c":1},{"s":1761511800000,"e":null,"c":1},{"s":1761595200000,"e":null,"c":1},{"s":1761596700000,"e":null,"c":1},{"s":1761598200000,"e":null,"c":1},{"s":1761681600000,"e":null,"c":1},{"s":1761683100000,"e":null,"c":1},{"s":1761768000000,"e":null,"c":1},{"s":1761769500000,"e":null,"c":1},{"s":1761771000000,"e":null,"c":1},{"s":1761772500000,"e":null,"c":1},{"s":1761854400000,"e":null,"c":1},{"s":1761855900000,"e":null,"c":1},{"s":1761857400000,"e":null,"c":1},{"s":1761858900000,"e":null,"c":1},{"s":1762113600000,"e":null,"c":1},{"s":1762115100000,"e":null,"c":1},{"s":1762116600000,"e":null,"c":1},{"s":1762118100000,"e":null,"c":1},{"s":1762119600000,"e":null,"c":1},{"s":1762200000000,"e":null,"c":1},{"s":1762201500000,"e":null,"c":1},{"s":1762286400000,"e":null,"c":1},{"s":1762287900000,"e":null,"c":1},{"s":1762289400000,"e":null,"c":1},{"s":1762290900000,"e":null,"c":1},{"s":1762292400000,"e":null,"c":1},{"s":1762293900000,"e":null,"c":1},{"s":1762459200000,"e":null,"c":1},{"s":1762460700000,"e":null,"c":1},{"s":1762462200000,"e":null,"c":1},{"s":1762463700000,"e":null,"c":1},{"s":1762465200000,"e":null,"c":1},{"s":1762632000000,"e":null,"c":1},{"s":1762633500000,"e":null,"c":1},{"s":1762635000000,"e":null,"c":1},{"s":1762636500000,"e":null,"c":1},{"s":1762804800000,"e":null,"c":1},{"s":1762806300000,"e":null,"c":1},{"s":1762807800000,"e":null,"c":1},{"s":1762809300000,"e":null,"c":1},{"s":1762891200000,"e":null,"c":1},{"s":1762892700000,"e":null,"c":1},{"s":1762894200000,"e":null,"c":1},{"s":1762977600000,"e":null,"c":1},{"s":1763064000000,"e":null,"c":1},{"s":1763065500000,"e":null,"c":1},{"s":1763067000000,"e":null,"c":1},{"s":1763068500000,"e":null,"c":1},{"s":1763070000000,"e":null,"c":1},{"s":1764014400000,"e":null,"c":1},{"s":1764015900000,"e":null,"c":1},{"s":1764017400000,"e":null,"c":1},{"s":1764018900000,"e":null,"c":1},{"s":1764020400000,"e":null,"c":1},{"s":1764100800000,"e":null,"c":1},{"s":1764102300000,"e":null,"c":1},{"s":1764103800000,"e":null,"c":1},{"s":1764105300000,"e":null,"c":1},{"s":1764106800000,"e":null,"c":1},{"s":1764108300000,"e":null,"c":1},{"s":1764273600000,"e":null,"c":1},{"s":1764275100000,"e":null,"c":1},{"s":1764276600000,"e":null,"c":1},{"s":1764278100000,"e":null,"c":1},{"s":1764279600000,"e":null,"c":1},{"s":1764281100000,"e":null,"c":1},{"s":1764282600000,"e":null,"c":1},{"s":1764619200000,"e":null,"c":1},{"s":1764620700000,"e":null,"c":1},{"s":1764622200000,"e":null,"c":1},{"s":1764623700000,"e":null,"c":1},{"s":1764705600000,"e":null,"c":1},{"s":1764707100000,"e":null,"c":1},{"s":1764708600000,"e":null,"c":1},{"s":1764710100000,"e":null,"c":1},{"s":1764711600000,"e":null,"c":1},{"s":1764713100000,"e":null,"c":1},{"s":1764792000000,"e":null,"c":1},{"s":1764793500000,"e":null,"c":1},{"s":1764795000000,"e":null,"c":1},{"s":1764796500000,"e":null,"c":1},{"s":1764878400000,"e":null,"c":1},{"s":1764879900000,"e":null,"c":1},{"s":1764881400000,"e":null,"c":1},{"s":1764882900000,"e":null,"c":1},{"s":1764884400000,"e":null,"c":1},{"s":1764964800000,"e":null,"c":1},{"s":1764966300000,"e":null,"c":1},{"s":1764967800000,"e":null,"c":1},{"s":1764969300000,"e":null,"c":1},{"s":1764970800000,"e":null,"c":1},{"s":1765310400000,"e":null,"c":1},{"s":1765311900000,"e":null,"c":1},{"s":1765313400000,"e":null,"c":1},{"s":1765314900000,"e":null,"c":1},{"s":1765483200000,"e":null,"c":1},{"s":1765484700000,"e":null,"c":1},{"s":1765486200000,"e":null,"c":1},{"s":1765487700000,"e":null,"c":1},{"s":1765489200000,"e":null,"c":1},{"s":1765828800000,"e":null,"c":1},{"s":1765830300000,"e":null,"c":1},{"s":1765831800000,"e":null,"c":1},{"s":1765833300000,"e":null,"c":1},{"s":1765834800000,"e":null,"c":1},{"s":1765836300000,"e":null,"c":1},{"s":1765915200000,"e":null,"c":1},{"s":1765916700000,"e":null,"c":1},{"s":1766174400000,"e":null,"c":1},{"s":1766175900000,"e":null,"c":1},{"s":1766177400000,"e":null,"c":1},{"s":1766433600000,"e":null,"c":1},{"s":1766435100000,"e":null,"c":1},{"s":1766436600000,"e":null,"c":1},{"s":1766438100000,"e":null,"c":1},{"s":1766439600000,"e":null,"c":1},{"s":1766441100000,"e":null,"c":1},{"s":1766520000000,"e":null,"c":1},{"s":1766521500000,"e":null,"c":1},{"s":1766779200000,"e":null,"c":1},{"s":1766780700000,"e":null,"c":1},{"s":1766782200000,"e":null,"c":1},{"s":1766783700000,"e":null,"c":1},{"s":1766785200000,"e":null,"c":1},{"s":1766786700000,"e":null,"c":1},{"s":1767643200000,"e":null,"c":1},{"s":1767644700000,"e":null,"c":1},{"s":1767646200000,"e":null,"c":1},{"s":1767647700000,"e":null,"c":1},{"s":1767902400000,"e":null,"c":1},{"s":1767903900000,"e":null,"c":1},{"s":1767905400000,"e":null,"c":1},{"s":1774731600000,"e":null,"n":1},{"s":1774733400000,"e":null,"n":1},{"s":1774735200000,"e":null,"n":1},{"s":1774737000000,"e":null,"n":1},{"s":1775309323411,"e":1775310060103},{"s":1775780308015,"e":1775783080260},{"s":1775917954413,"e":1775920871541},{"s":1776523530463,"e":1776525879290},{"s":1777929748756,"e":1777932217125},{"s":1778016224614,"e":1778018314131},{"s":1778620139220,"e":1778622178836},{"s":1778792992996,"e":1778793957534},{"s":1779224248609,"e":1779226160610},{"s":1779472990883,"e":1779475341062},{"s":1779830739309,"e":1779832921873},{"s":1781042083559,"e":1781044742183},{"s":1781644546583,"e":1781645863803},{"s":1781818391252,"e":1781820185028},{"s":1781820458307,"e":1781821039422},{"s":1782251091677,"e":1782252806080},{"s":1782570076936,"e":1782570709190},{"s":1782570885919,"e":1782571617652},{"s":1782571944885,"e":1782572342366},{"s":1782854959550,"e":1782855706379},{"s":1782855781244,"e":1782856418768},{"s":1782856601152,"e":1782856603778},{"s":1783460017377,"e":1783460734656},{"s":1783460981210,"e":1783461438537},{"s":1783630364633,"e":1783630970332},{"s":1783631451115,"e":1783632014507},{"s":1783632127013,"e":1783632692169},{"s":1783632951890,"e":1783633598074},{"s":1784064642669,"e":1784065215142},{"s":1784065410381,"e":1784066067776},{"s":1784066245026,"e":1784066976336},{"s":1784842520416,"e":1784843201241},{"s":1784843493972,"e":1784844228118},{"s":1784844390825,"e":1784844827773},{"s":1784987916128,"e":1784988592601},{"s":1784988887843,"e":1784989507021},{"s":1784990222770,"e":1784990721684},{"s":1784990991703,"e":1784991407677},{"s":1785274248018,"e":1785274963199},{"s":1785275097573,"e":1785275820016},{"s":1785276069577,"e":1785276570915},{"s":1785590868298,"e":1785591334178},{"s":1785591684836,"e":1785592584226},{"s":1785592748042,"e":1785593431252},{"s":1785876876670,"e":1785877706167},{"s":1785877960960,"e":1785878702393},{"s":1786481706038,"e":1786482387035},{"s":1786482608065,"e":1786483317666},{"s":1786483738581,"e":1786484352749},{"s":1786655393844,"e":1786656039316},{"s":1786656804369,"e":1786657091117},{"s":1786657495764,"e":1786657790110},{"s":1787088394921,"e":1787089023233},{"s":1787089210046,"e":1787089957746},{"s":1787259175591,"e":1787259815699},{"s":1787260761950,"e":1787261455912},{"s":1787261883879,"e":1787262484758},{"s":1787262615136,"e":1787263299189},{"s":1787865532486,"e":1787866291272},{"s":1787866537860,"e":1787867071898},{"s":1787867320622,"e":1787867859727},{"s":1787868100364,"e":1787868720766},{"s":1788297187390,"e":1788297839582},{"s":1788298036137,"e":1788298862890},{"s":1788298970793,"e":1788299425062},{"s":1788299601165,"e":1788300028558},{"s":1788893953235,"e":1788894544354},{"s":1788894712363,"e":1788895397612},{"s":1788895513735,"e":1788895978376},{"s":1788896290774,"e":1788896978737},{"s":1789070738027,"e":1789071441183},{"s":1789071556762,"e":1789072318111},{"s":1789072495183,"e":1789072952733},{"s":1789663777573,"e":1789664443689},{"s":1789664670891,"e":1789665316733},{"s":1789665599494,"e":1789666057455},{"s":1790108239825,"e":1790108908591},{"s":1790109124299,"e":1790109836815},{"s":1790110049622,"e":1790110345431},{"s":1790281101157,"e":1790281785886},{"s":1790281912663,"e":1790282595116},{"s":1790282812870,"e":1790283544953},{"s":1790722169623,"e":1790722830323},{"s":1790723034470,"e":1790723461451},{"s":1790724143008,"e":1790724686418},{"s":1790885935311,"e":1790887678688},{"s":1790887719825,"e":1790887727203},{"s":1790888188116,"e":1790888768000},{"s":1790888792259,"e":1791248256261},{"s":1791317980601,"e":1791318487400},{"s":1791318693525,"e":1791319479412},{"s":1791319496838,"e":1791320180059},{"s":1791490224975,"e":1791490397261},{"s":1791490420007,"e":1791490946006},{"s":1791491070023,"e":1791491615942},{"s":1791491763848,"e":1791492271752}],"perf":[[0,187,1743541200000,36,12],[1,188,1743542400000,36,12],[2,9002,1743543600000,14,12],[3,9003,1743544800000,27,12],[4,187,1744149600000,45,12],[5,188,1744150800000,45,12],[6,9002,1744152000000,23,12],[7,9003,1744153200000,32,12],[8,187,1744754400000,48.5,12],[9,188,1744755600000,50,12],[10,9002,1744756800000,32,12],[11,9003,1744758000000,36,12],[12,187,1745186400000,54,12],[13,188,1745187600000,54,12],[14,9002,1745188800000,36,12],[15,9003,1745190000000,41,12],[16,187,1745359200000,59,12],[17,188,1745360400000,59,12],[18,9002,1745361600000,41,12],[19,9003,1745362800000,45,12],[20,187,1745532000000,63,12],[21,188,1745533200000,63,12],[22,9002,1745534400000,45,12],[23,9003,1745535600000,50,12],[24,188,1746570000000,68,12],[25,187,1747173600000,68,12],[26,9002,1747176000000,50,12],[27,187,1747346400000,72,12],[28,188,1747347600000,72,12],[29,9002,1747348800000,54,12],[30,187,1747778400000,77,12],[31,9002,1747780800000,59,12],[32,187,1747951200000,81,12],[33,188,1748384400000,81,12],[34,9002,1748385600000,63,12],[35,187,1748556000000,86,12],[36,188,1748557200000,86,12],[37,9003,1748559600000,54,12],[38,188,1748730000000,90,12],[39,9002,1748731200000,68,12],[40,9003,1748732400000,59,12],[41,171,1749934800000,126,12],[42,9002,1749936300000,90,10],[43,9003,1749937800000,70,10],[44,118,1750194000000,72,10],[45,9002,1750195500000,95,10],[46,9002,1750366800000,99,10],[47,9003,1750368300000,77,10],[48,118,1750539600000,77,10],[49,15,1750541100000,45,10],[50,9002,1750542600000,104,10],[51,9003,1750544100000,81,10],[52,15,1750971600000,50,10],[53,9002,1750973100000,108,10],[53,9002,1750973280000,110.4,10],[54,9005,1750974600000,54,10],[54,9005,1750974780000,63,10],[55,118,1751144400000,63,10],[56,118,1751403600000,68,10],[57,187,1751407200000,93.4,4],[58,118,1751576400000,72,10],[59,171,1751577900000,135,10],[60,9003,1751579400000,77,10],[61,9005,1751749200000,68,10],[62,118,1752526800000,72,10],[63,9003,1752528300000,72,10],[64,118,1752613200000,77,10],[65,118,1752786000000,77,5],[66,171,1752787500000,144,10],[67,9003,1752789000000,77,10],[68,9005,1752790500000,72,10],[69,15,1752958800000,54,10],[70,9003,1752960300000,72,10],[71,9005,1752961800000,77,10],[72,9007,1752963300000,41,10],[73,118,1753563600000,77,10],[74,171,1753565100000,144,10],[75,9005,1753566600000,77,6],[76,15,1754168400000,54,10],[77,171,1754169900000,153,10],[78,9005,1754171400000,81,10],[79,171,1754427600000,162,10],[80,9005,1754429100000,86,10],[81,171,1754600400000,171,10],[82,118,1755205200000,80.5,8],[83,171,1755208800000,186.8,4],[84,9005,1755291600000,90,10],[85,118,1755637200000,81,10],[86,15,1755638700000,58,8],[87,118,1755810000000,85,4],[88,9005,1755811500000,95,10],[89,118,1755982800000,90,10],[90,118,1757019600000,95,6],[91,9005,1757021100000,99,4],[92,9007,1757022600000,41,7],[93,9005,1757192400000,99,6],[94,118,1757448000000,100,12],[95,15,1757449500000,58,10],[96,118,1757620800000,101,7],[97,118,1757966400000,104,4],[98,118,1758571200000,104,4],[99,9005,1758572700000,90,5],[100,118,1758657600000,95,8],[101,15,1758659100000,59,10],[102,118,1758744000000,104,8],[103,15,1758745500000,59,10],[104,9005,1758830400000,90,8],[105,118,1759435200000,77,15],[105,118,1759435380000,104,6],[105,118,1759435560000,104,6],[105,118,1759435740000,104,6],[105,118,1759435920000,77,15],[106,15,1759436700000,32,15],[106,15,1759436880000,63,6],[106,15,1759437060000,63,6],[106,15,1759437240000,63,4],[106,15,1759437420000,41,10],[107,9008,1759438200000,17,15],[107,9008,1759438380000,26,6],[107,9008,1759438560000,26,6],[107,9008,1759438740000,26,6],[107,9008,1759438920000,17,9],[108,118,1759608000000,72,10],[108,118,1759608180000,104,4],[108,118,1759608360000,104,4],[108,118,1759608540000,63,10],[109,9009,1759609500000,7,15],[109,9009,1759609680000,7,15],[109,9009,1759609860000,7,15],[109,9009,1759610040000,7,15],[110,9021,1759611000000,14,10],[110,9021,1759611180000,14,10],[110,9021,1759611360000,14,10],[111,15,1759780800000,36,18],[111,15,1759780980000,63,8],[111,15,1759781160000,63,3],[111,15,1759781340000,59,4],[112,118,1760212800000,72,17],[112,118,1760212980000,104,7],[112,118,1760213160000,104,7],[112,118,1760213340000,104,7],[112,118,1760213520000,72,15],[113,15,1760214300000,36,21],[113,15,1760214480000,63,7],[113,15,1760214660000,63,8],[114,9005,1760215800000,59,8],[114,9005,1760215980000,90,7],[114,9005,1760216160000,90,7],[114,9005,1760216340000,90,6],[114,9005,1760216520000,63,12],[115,9009,1760217300000,10,20],[115,9009,1760217480000,12,10],[115,9009,1760217660000,12,10],[115,9009,1760217840000,10,13],[116,118,1760385600000,59,20],[116,118,1760385780000,104,7],[116,118,1760385960000,104,6],[116,118,1760386140000,104,5],[116,118,1760386320000,77,11],[117,15,1760387100000,41,25],[117,15,1760387280000,63,10],[117,15,1760387460000,50,5],[117,15,1760387640000,27,14],[118,9005,1760388600000,50,20],[118,9005,1760388780000,90,8],[118,9005,1760388960000,90,7],[118,9005,1760389140000,90,4],[118,9005,1760389320000,59,6],[119,118,1760472000000,63,20],[119,118,1760472180000,104,4],[119,118,1760472360000,104,5],[119,118,1760472540000,99,4],[119,118,1760472720000,72,12],[120,15,1760473500000,36,21],[120,15,1760473680000,50,10],[120,15,1760473860000,50,13],[120,15,1760474040000,50,6],[120,15,1760474220000,41,15],[121,118,1761076800000,68,15],[121,118,1761076980000,104,4],[122,15,1761078300000,41,20],[122,15,1761078480000,51.1,10],[122,15,1761078660000,51.1,10],[122,15,1761078840000,51.1,6],[122,15,1761079020000,41,8],[123,171,1761079800000,171,10],[123,171,1761079980000,171,10],[124,188,1761081300000,72,12],[124,188,1761081480000,72,10],[124,188,1761081660000,72,10],[124,188,1761081840000,60,10],[125,118,1761163200000,68,8],[125,118,1761163380000,90,7],[125,118,1761163560000,86,6],[125,118,1761163740000,86,6],[125,118,1761163920000,59,11],[126,15,1761164700000,42.1,16],[126,15,1761164880000,52.3,10],[126,15,1761165060000,52.3,10],[126,15,1761165240000,52.3,5],[126,15,1761165420000,42.1,8],[127,171,1761166200000,117,15],[127,171,1761166380000,171,10],[127,171,1761166560000,171,8],[127,171,1761166740000,117,10],[128,9005,1761167700000,54,15],[128,9005,1761167880000,81,8],[128,9005,1761168060000,72,6],[128,9005,1761168240000,59,6],[129,118,1761249600000,28.1,24],[129,118,1761249780000,50,16],[129,118,1761249960000,50,12],[129,118,1761250140000,50,13],[129,118,1761250320000,50,10],[129,118,1761250500000,32,16],[130,9002,1761251100000,41,11],[130,9002,1761251280000,41,14],[130,9002,1761251460000,41,10],[131,118,1761508800000,45,20],[131,118,1761508980000,77,12],[131,118,1761509160000,81,6],[131,118,1761509340000,77,10],[131,118,1761509520000,50,11],[132,15,1761510300000,42.1,20],[132,15,1761510480000,52.3,10],[132,15,1761510660000,52.3,10],[132,15,1761510840000,52.3,10],[132,15,1761511020000,42.1,10],[133,171,1761511800000,108,16],[133,171,1761511980000,171,5],[134,118,1761595200000,50,20],[134,118,1761595380000,77,11],[134,118,1761595560000,78.1,10],[134,118,1761595740000,78.1,7],[134,118,1761595920000,50,11],[135,187,1761596700000,72,15],[135,187,1761596880000,81,10],[135,187,1761597060000,81,10],[135,187,1761597240000,81,6],[136,188,1761598200000,77,20],[136,188,1761598380000,93.4,13],[136,188,1761598560000,93.4,13],[137,118,1761681600000,50,20],[137,118,1761681780000,78.1,10],[137,118,1761681960000,78.1,7],[137,118,1761682140000,54,6],[138,15,1761683100000,43.3,20],[138,15,1761683280000,53.4,10],[138,15,1761683460000,53.4,10],[138,15,1761683640000,53.4,5],[138,15,1761683820000,43.3,8],[139,118,1761768000000,55,15],[139,118,1761768180000,79.3,7],[139,118,1761768360000,78.1,6],[140,15,1761769500000,44.4,20],[140,15,1761769680000,54,10],[140,15,1761769860000,54,10],[140,15,1761770040000,54,6],[140,15,1761770220000,43.3,6],[141,187,1761771000000,59,12],[141,187,1761771180000,59,12],[142,9005,1761772500000,54,15],[142,9005,1761772680000,72,10],[142,9005,1761772860000,72,8],[142,9005,1761773040000,72,8],[142,9005,1761773220000,54,8],[143,118,1761854400000,54,20],[143,118,1761854580000,78.1,10],[143,118,1761854760000,78.1,10],[143,118,1761854940000,78.1,10],[144,15,1761855900000,45,17],[144,15,1761856080000,54,10],[144,15,1761856260000,54,10],[144,15,1761856440000,54,10],[144,15,1761856620000,54,8],[144,15,1761856800000,45,6],[145,187,1761857400000,72,20],[145,187,1761857580000,81,10],[145,187,1761857760000,81,10],[145,187,1761857940000,81,5],[145,187,1761858120000,72,10],[146,188,1761858900000,81,20],[146,188,1761859080000,93.4,17],[146,188,1761859260000,93.4,13],[146,188,1761859440000,93.4,13],[146,188,1761859620000,93.4,11],[147,118,1762113600000,59,20],[147,118,1762113780000,79.3,7],[147,118,1762113960000,79.3,7],[147,118,1762114140000,79.3,5],[147,118,1762114320000,59,12],[148,15,1762115100000,45,20],[148,15,1762115280000,55.1,10],[148,15,1762115460000,55.1,10],[148,15,1762115640000,55.1,10],[148,15,1762115820000,55.1,5],[148,15,1762116000000,45,10],[149,187,1762116600000,77,14],[149,187,1762116780000,86,10],[149,187,1762116960000,86,10],[150,9005,1762118100000,54,20],[150,9005,1762118280000,72,10],[150,9005,1762118460000,72,10],[150,9005,1762118640000,72,6],[150,9005,1762118820000,54,8],[151,9009,1762119600000,12,10],[151,9009,1762119780000,12,10],[151,9009,1762119960000,12,8],[151,9009,1762120140000,12,10],[151,9009,1762120320000,12,10],[151,9009,1762120500000,12,12],[151,9009,1762120680000,14,10],[151,9009,1762120860000,14,5],[152,118,1762200000000,63,20],[152,118,1762200180000,79.3,10],[152,118,1762200360000,79.3,10],[152,118,1762200540000,79.3,10],[152,118,1762200720000,79.3,10],[152,118,1762200900000,63,9],[153,15,1762201500000,46.1,20],[153,15,1762201680000,56.3,10],[153,15,1762201860000,56.3,6],[153,15,1762202040000,54,6],[153,15,1762202220000,46.1,6],[154,118,1762286400000,65.3,20],[154,118,1762286580000,81,7],[154,118,1762286760000,81,7],[154,118,1762286940000,81,4],[154,118,1762287120000,63,7],[155,15,1762287900000,46.1,20],[155,15,1762288080000,56.3,10],[155,15,1762288260000,56.3,10],[155,15,1762288440000,56.3,10],[155,15,1762288620000,56.3,6],[155,15,1762288800000,46.1,6],[156,171,1762289400000,117,20],[156,171,1762289580000,171,6],[156,171,1762289760000,171,10],[156,171,1762289940000,171,10],[156,171,1762290120000,117,10],[157,187,1762290900000,77,17],[157,187,1762291080000,90,4],[157,187,1762291260000,86,4],[158,188,1762292400000,86,7],[158,188,1762292580000,86,12],[158,188,1762292760000,86,12],[159,9003,1762293900000,50,10],[159,9003,1762294080000,59,10],[159,9003,1762294260000,59,6],[159,9003,1762294440000,59,3],[160,118,1762459200000,66.4,20],[160,118,1762459380000,81,10],[160,118,1762459560000,81,10],[160,118,1762459740000,81,6],[160,118,1762459920000,81,8],[160,118,1762460100000,63,7],[161,15,1762460700000,48.4,20],[161,15,1762460880000,57.4,10],[161,15,1762461060000,57.4,10],[161,15,1762461240000,57.4,7],[161,15,1762461420000,46.1,8],[162,171,1762462200000,126,20],[162,171,1762462380000,180,10],[162,171,1762462560000,180,10],[162,171,1762462740000,180,10],[162,171,1762462920000,126,11],[162,171,1762463100000,126,10],[163,187,1762463700000,77,15],[163,187,1762463880000,81,10],[163,187,1762464060000,81,8],[163,187,1762464240000,81,9],[163,187,1762464420000,81,10],[163,187,1762464600000,77,7],[164,188,1762465200000,77,20],[164,188,1762465380000,90,10],[164,188,1762465560000,90,10],[164,188,1762465740000,90,10],[164,188,1762465920000,90,10],[164,188,1762466100000,77,17],[165,118,1762632000000,68,16],[165,118,1762632180000,81,10],[165,118,1762632360000,81,10],[165,118,1762632540000,81,8],[165,118,1762632720000,81,7],[165,118,1762632900000,63,7],[166,15,1762633500000,45,15],[166,15,1762633680000,57.4,10],[166,15,1762633860000,57.4,10],[166,15,1762634040000,59,10],[166,15,1762634220000,59,6],[166,15,1762634400000,45,10],[167,171,1762635000000,135,20],[167,171,1762635180000,186.8,10],[167,171,1762635360000,186.8,6],[167,171,1762635540000,126,9],[168,9009,1762636500000,14,10],[168,9009,1762636680000,14,10],[168,9009,1762636860000,14,10],[168,9009,1762637040000,14,10],[168,9009,1762637220000,14,10],[168,9009,1762637400000,17,8],[169,118,1762804800000,68,20],[169,118,1762804980000,81,10],[169,118,1762805160000,81,7],[169,118,1762805340000,81,8],[169,118,1762805520000,81,6],[169,118,1762805700000,68,5],[170,15,1762806300000,45,20],[170,15,1762806480000,59,10],[170,15,1762806660000,59,10],[170,15,1762806840000,59,10],[170,15,1762807020000,59,7],[170,15,1762807200000,45,10],[171,188,1762807800000,77,9],[171,188,1762807980000,68,17],[171,188,1762808160000,68,14],[171,188,1762808340000,68,12],[171,188,1762808520000,68,12],[172,9002,1762809300000,63,10],[172,9002,1762809480000,63,12],[172,9002,1762809660000,63,12],[172,9002,1762809840000,63,12],[172,9002,1762810020000,63,12],[173,118,1762891200000,68,15],[173,118,1762891380000,81,10],[173,118,1762891560000,81,10],[173,118,1762891740000,81,6],[173,118,1762891920000,81,6],[173,118,1762892100000,68,7],[174,15,1762892700000,46.1,20],[174,15,1762892880000,60.1,10],[174,15,1762893060000,60.1,10],[174,15,1762893240000,60.1,10],[174,15,1762893420000,60.1,6],[174,15,1762893600000,46.1,8],[175,9002,1762894200000,63,13],[175,9002,1762894380000,63,10],[175,9002,1762894560000,63,10],[175,9002,1762894740000,63,10],[175,9002,1762894920000,63,10],[175,9002,1762895100000,54,4],[176,15,1762977600000,47.3,16],[176,15,1762977780000,61.3,10],[176,15,1762977960000,61.3,7],[176,15,1762978140000,61.3,6],[176,15,1762978320000,59,5],[176,15,1762978500000,46.1,10],[177,15,1763064000000,47.3,20],[177,15,1763064180000,61.3,10],[177,15,1763064360000,61.3,10],[177,15,1763064540000,61.3,10],[177,15,1763064720000,61.3,10],[177,15,1763064900000,47.3,10],[178,171,1763065500000,135,12],[178,171,1763065680000,144,10],[178,171,1763065860000,144,10],[178,171,1763066040000,135,1],[179,187,1763067000000,72,15],[179,187,1763067180000,81,10],[179,187,1763067360000,81,10],[179,187,1763067540000,81,10],[179,187,1763067720000,81,10],[179,187,1763067900000,77,7],[180,188,1763068500000,59,20],[180,188,1763068680000,81,10],[180,188,1763068860000,81,10],[180,188,1763069040000,86,10],[180,188,1763069220000,81,10],[181,9002,1763070000000,41,20],[181,9002,1763070180000,68,10],[181,9002,1763070360000,68,10],[181,9002,1763070540000,68,10],[181,9002,1763070720000,68,10],[181,9002,1763070900000,41,10],[182,118,1764014400000,63,20],[182,118,1764014580000,81,10],[182,118,1764014760000,81,10],[182,118,1764014940000,81,10],[182,118,1764015120000,81,10],[182,118,1764015300000,63,13],[182,118,1764015480000,45,10],[182,118,1764015660000,45,10],[182,118,1764015840000,45,10],[182,118,1764016020000,45,10],[182,118,1764016200000,45,10],[182,118,1764016380000,45,8],[183,9005,1764015900000,54,20],[183,9005,1764016080000,72,10],[183,9005,1764016260000,72,10],[183,9005,1764016440000,63,6],[183,9005,1764016620000,54,8],[183,9005,1764016800000,54,8],[184,9022,1764017400000,10,10],[184,9022,1764017580000,12,10],[184,9022,1764017760000,12,8],[184,9022,1764017940000,12,5],[184,9022,1764018120000,10,8],[185,9023,1764018900000,14.7,10],[185,9023,1764019080000,19.3,10],[185,9023,1764019260000,19.3,10],[185,9023,1764019440000,19.3,10],[185,9023,1764019620000,19.3,8],[186,9024,1764020400000,3.4,18],[186,9024,1764020580000,5.7,10],[186,9024,1764020760000,5.7,10],[186,9024,1764020940000,5.7,7],[186,9024,1764021120000,5.7,10],[186,9024,1764021300000,5.7,10],[187,171,1764100800000,135,10],[187,171,1764100980000,135,12],[187,171,1764101160000,135,12],[187,171,1764101340000,144,12],[187,171,1764101520000,144,12],[187,171,1764101700000,108,10],[188,187,1764102300000,45,12],[188,187,1764102480000,72,10],[188,187,1764102660000,72,10],[188,187,1764102840000,90,10],[188,187,1764103020000,90,10],[188,187,1764103200000,72,10],[189,9002,1764103800000,32,12],[189,9002,1764103980000,50,10],[189,9002,1764104160000,50,10],[189,9002,1764104340000,50,10],[189,9002,1764104520000,50,10],[189,9002,1764104700000,32,12],[190,9003,1764105300000,32,20],[190,9003,1764105480000,50,10],[190,9003,1764105660000,50,10],[190,9003,1764105840000,50,10],[190,9003,1764106020000,32,12],[191,9006,1764106800000,120,10],[191,9006,1764106980000,150,10],[191,9006,1764107160000,190,10],[191,9006,1764107340000,230,10],[191,9006,1764107520000,230,10],[191,9006,1764107700000,230,10],[191,9006,1764107880000,230,10],[191,9006,1764108060000,230,10],[191,9006,1764108240000,230,10],[191,9006,1764108420000,150,15],[192,9025,1764108300000,54,20],[192,9025,1764108480000,72,12],[192,9025,1764108660000,90,12],[192,9025,1764108840000,90,12],[192,9025,1764109020000,90,12],[192,9025,1764109200000,54,20],[193,9009,1764273600000,14,10],[193,9009,1764273780000,14,10],[193,9009,1764273960000,14,10],[193,9009,1764274140000,14,10],[193,9009,1764274320000,18,10],[194,9011,1764275100000,23,20],[194,9011,1764275280000,42,10],[194,9011,1764275460000,42,10],[194,9011,1764275640000,42,8],[194,9011,1764275820000,42,8],[194,9011,1764276000000,23,17],[195,9012,1764276600000,14,15],[195,9012,1764276780000,18,10],[195,9012,1764276960000,18,10],[195,9012,1764277140000,23,10],[195,9012,1764277320000,27,10],[195,9012,1764277500000,27,10],[195,9012,1764277680000,14,10],[196,9013,1764278100000,59,10],[196,9013,1764278280000,59,10],[196,9013,1764278460000,59,10],[196,9013,1764278640000,59,10],[196,9013,1764278820000,63,10],[197,9018,1764279600000,9,10],[197,9018,1764279780000,9,10],[197,9018,1764279960000,23,10],[197,9018,1764280140000,36,10],[197,9018,1764280320000,36,5],[197,9018,1764280500000,23,20],[198,9019,1764281100000,5,10],[198,9019,1764281280000,5,10],[198,9019,1764281460000,5,5],[198,9019,1764281640000,5,6],[198,9019,1764281820000,5,6],[199,9026,1764282600000,23,20],[199,9026,1764282780000,32,10],[199,9026,1764282960000,32,10],[199,9026,1764283140000,32,10],[199,9026,1764283320000,32,7],[199,9026,1764283500000,23,6],[200,188,1764619200000,59,20],[200,188,1764619380000,81,10],[200,188,1764619560000,86,10],[200,188,1764619740000,86,10],[200,188,1764619920000,86,10],[200,188,1764620100000,59,16],[201,9003,1764620700000,27,20],[201,9003,1764620880000,41,10],[201,9003,1764621060000,41,10],[201,9003,1764621240000,41,10],[201,9003,1764621420000,41,10],[201,9003,1764621600000,27,15],[202,9006,1764622200000,150,20],[202,9006,1764622380000,270,10],[202,9006,1764622560000,270,10],[202,9006,1764622740000,270,10],[202,9006,1764622920000,270,10],[202,9006,1764623100000,150,14],[203,9014,1764623700000,20,10],[203,9014,1764623880000,20,10],[203,9014,1764624060000,60,5],[203,9014,1764624240000,40,5],[203,9014,1764624420000,40,7],[204,107,1764705600000,59,10],[204,107,1764705780000,59,10],[204,107,1764705960000,59,10],[204,107,1764706140000,59,8],[204,107,1764706320000,59,5],[205,9010,1764707100000,32,20],[205,9010,1764707280000,63,10],[205,9010,1764707460000,63,10],[205,9010,1764707640000,63,10],[205,9010,1764707820000,63,10],[205,9010,1764708000000,32,20],[206,9020,1764708600000,19.3,20],[206,9020,1764708780000,26,10],[206,9020,1764708960000,26,10],[206,9020,1764709140000,32,10],[206,9020,1764709320000,32,10],[206,9020,1764709500000,32,10],[207,9022,1764710100000,12,10],[207,9022,1764710280000,12,8],[207,9022,1764710460000,12,8],[207,9022,1764710640000,12,8],[207,9022,1764710820000,12,6],[207,9022,1764711000000,10,6],[208,9023,1764711600000,12,20],[208,9023,1764711780000,19,10],[208,9023,1764711960000,23,10],[208,9023,1764712140000,23,10],[208,9023,1764712320000,23,10],[208,9023,1764712500000,12,20],[209,9024,1764713100000,5.7,20],[209,9024,1764713280000,7.9,10],[209,9024,1764713460000,7.9,10],[209,9024,1764713640000,7.9,10],[209,9024,1764713820000,7.9,10],[209,9024,1764714000000,5.7,20],[210,171,1764792000000,108,20],[210,171,1764792180000,187,6],[210,171,1764792360000,144,10],[210,171,1764792540000,144,10],[210,171,1764792720000,144,10],[210,171,1764792900000,144,10],[210,171,1764793080000,144,8],[210,171,1764793260000,144,4],[210,171,1764793440000,108,6],[211,187,1764793500000,50,20],[211,187,1764793680000,81,10],[211,187,1764793860000,81,10],[211,187,1764794040000,81,10],[211,187,1764794220000,81,5],[211,187,1764794400000,50,12],[212,9003,1764795000000,32,20],[212,9003,1764795180000,45,10],[212,9003,1764795360000,45,10],[212,9003,1764795540000,45,10],[212,9003,1764795720000,32,10],[213,9025,1764796500000,68,20],[213,9025,1764796680000,95,12],[213,9025,1764796860000,95,12],[213,9025,1764797040000,95,12],[213,9025,1764797220000,95,12],[213,9025,1764797400000,68,20],[214,6,1764878400000,30,15],[214,6,1764878580000,50,10],[214,6,1764878760000,50,6],[214,6,1764878940000,50,5],[214,6,1764879120000,40,10],[214,6,1764879300000,40,6],[215,9011,1764879900000,10,20],[215,9011,1764880080000,17,10],[215,9011,1764880260000,19,10],[215,9011,1764880440000,19,10],[215,9011,1764880620000,19,10],[215,9011,1764880800000,19,10],[215,9011,1764880980000,19,10],[215,9011,1764881160000,19,7],[215,9011,1764881340000,19,10],[215,9011,1764881520000,10,20],[216,9013,1764881400000,54,10],[216,9013,1764881580000,54,10],[216,9013,1764881760000,50,10],[216,9013,1764881940000,45,10],[216,9013,1764882120000,45,10],[216,9013,1764882300000,54,10],[217,9019,1764882900000,5,10],[217,9019,1764883080000,5,10],[217,9019,1764883260000,5,6],[217,9019,1764883440000,5,7],[217,9019,1764883620000,5,8],[217,9019,1764883800000,5,6],[218,9026,1764884400000,8,20],[218,9026,1764884580000,12,10],[218,9026,1764884760000,14,10],[218,9026,1764884940000,14,10],[218,9026,1764885120000,14,10],[219,171,1764964800000,108,14],[219,171,1764964980000,162,10],[219,171,1764965160000,162,10],[219,171,1764965340000,162,10],[219,171,1764965520000,108,11],[220,188,1764966300000,68,17],[220,188,1764966480000,93,10],[220,188,1764966660000,93,10],[220,188,1764966840000,93,10],[220,188,1764967020000,93,10],[220,188,1764967200000,68,20],[221,9003,1764967800000,32,20],[221,9003,1764967980000,50,10],[221,9003,1764968160000,50,10],[221,9003,1764968340000,50,10],[221,9003,1764968520000,50,10],[221,9003,1764968700000,32,10],[222,9014,1764969300000,12,20],[222,9014,1764969480000,25,10],[222,9014,1764969660000,40,10],[222,9014,1764969840000,40,10],[222,9014,1764970020000,60,8],[222,9014,1764970200000,60,6],[223,9016,1764970800000,18,10],[223,9016,1764970980000,18,10],[223,9016,1764971160000,18,10],[223,9016,1764971340000,23,10],[223,9016,1764971520000,23,10],[223,9016,1764971700000,18,10],[224,9020,1765310400000,18,20],[224,9020,1765310580000,32,10],[224,9020,1765310760000,32,5],[224,9020,1765310940000,25,10],[224,9020,1765311120000,25,10],[224,9020,1765311300000,18,20],[225,9022,1765311900000,5,20],[225,9022,1765312080000,10,10],[225,9022,1765312260000,10,10],[225,9022,1765312440000,10,10],[225,9022,1765312620000,10,10],[225,9022,1765312800000,5,12],[226,9023,1765313400000,14.7,20],[226,9023,1765313580000,21.6,10],[226,9023,1765313760000,21.6,10],[226,9023,1765313940000,21.6,10],[226,9023,1765314120000,21.6,10],[226,9023,1765314300000,14.7,20],[227,9024,1765314900000,7.9,15],[227,9024,1765315080000,10,10],[227,9024,1765315260000,10,10],[227,9024,1765315440000,10,10],[227,9024,1765315620000,10,10],[227,9024,1765315800000,7.9,10],[228,171,1765483200000,108,20],[228,171,1765483380000,162,10],[228,171,1765483560000,162,10],[228,171,1765483740000,162,10],[228,171,1765483920000,162,10],[228,171,1765484100000,108,3],[229,187,1765484700000,50,15],[229,187,1765484880000,81,10],[229,187,1765485060000,81,5],[229,187,1765485240000,68,6],[229,187,1765485420000,50,12],[230,9002,1765486200000,32,15],[230,9002,1765486380000,50,10],[230,9002,1765486560000,59,10],[230,9002,1765486740000,59,10],[230,9002,1765486920000,59,10],[230,9002,1765487100000,32,12],[231,9003,1765487700000,37,20],[231,9003,1765487880000,54,10],[231,9003,1765488060000,54,6],[231,9003,1765488240000,50,10],[231,9003,1765488420000,50,5],[231,9003,1765488600000,32,10],[232,9025,1765489200000,68,20],[232,9025,1765489380000,99,10],[232,9025,1765489560000,99,10],[232,9025,1765489740000,108,10],[232,9025,1765489920000,111,10],[232,9025,1765490100000,68,20],[233,227,1765828800000,23,20],[233,227,1765828980000,28,10],[233,227,1765829160000,28,10],[233,227,1765829340000,30,6],[233,227,1765829520000,28,10],[233,227,1765829700000,23,8],[234,6,1765830300000,20,20],[234,6,1765830480000,40,10],[234,6,1765830660000,40,10],[234,6,1765830840000,40,10],[234,6,1765831020000,40,10],[234,6,1765831200000,20,20],[235,9011,1765831800000,23,20],[235,9011,1765831980000,45,10],[235,9011,1765832160000,45,10],[235,9011,1765832340000,45,7],[235,9011,1765832520000,45,8],[235,9011,1765832700000,23,12],[236,9013,1765833300000,68,20],[236,9013,1765833480000,45,10],[236,9013,1765833660000,41,10],[236,9013,1765833840000,41,10],[236,9013,1765834020000,41,10],[236,9013,1765834200000,68,15],[237,9019,1765834800000,5,10],[237,9019,1765834980000,5,10],[237,9019,1765835160000,5,6],[237,9019,1765835340000,5,7],[237,9019,1765835520000,5,7],[237,9019,1765835700000,5,5],[238,9026,1765836300000,9,20],[238,9026,1765836480000,14,10],[238,9026,1765836660000,18,10],[238,9026,1765836840000,23,10],[238,9026,1765837020000,23,10],[238,9026,1765837200000,14,20],[239,9014,1765915200000,20,20],[239,9014,1765915380000,40,10],[239,9014,1765915560000,40,10],[239,9014,1765915740000,40,10],[239,9014,1765915920000,40,5],[239,9014,1765916100000,20,5],[240,9016,1765916700000,18,11],[240,9016,1765916880000,32,10],[240,9016,1765917060000,32,10],[240,9016,1765917240000,32,10],[240,9016,1765917420000,18,10],[241,15,1766174400000,45,20],[241,15,1766174580000,63,10],[241,15,1766174760000,63,10],[242,9005,1766175900000,45,20],[242,9005,1766176080000,59,10],[242,9005,1766176260000,72,8],[242,9005,1766176440000,72,8],[242,9005,1766176620000,42,11],[243,9024,1766177400000,14,15],[243,9024,1766177580000,23,10],[243,9024,1766177760000,23,5],[243,9024,1766177940000,14,10],[243,9024,1766178120000,23,9],[243,9024,1766178300000,14,10],[243,9024,1766178480000,18,6],[244,15,1766433600000,45,20],[244,15,1766433780000,63,10],[244,15,1766433960000,63,5],[244,15,1766434140000,61.3,5],[244,15,1766434320000,59,5],[244,15,1766434500000,45,11],[245,6,1766435100000,20,20],[245,6,1766435280000,40,10],[245,6,1766435460000,40,10],[245,6,1766435640000,40,10],[245,6,1766435820000,40,10],[245,6,1766436000000,20,13],[246,9011,1766436600000,23,20],[246,9011,1766436780000,28,10],[246,9011,1766436960000,26,10],[246,9011,1766437140000,21,10],[246,9011,1766437320000,23,6],[246,9011,1766437500000,19,8],[247,9013,1766438100000,64,16],[247,9013,1766438280000,41,7],[247,9013,1766438460000,50,7],[247,9013,1766438640000,59,10],[247,9013,1766438820000,59,10],[247,9013,1766439000000,68,7],[248,9017,1766439600000,14,12],[248,9017,1766439780000,23,10],[248,9017,1766439960000,27,10],[248,9017,1766440140000,27,10],[248,9017,1766440320000,14,20],[249,9019,1766441100000,5,10],[249,9019,1766441280000,5,10],[249,9019,1766441460000,5,10],[249,9019,1766441640000,5,6],[250,188,1766520000000,68,20],[250,188,1766520180000,93,12],[250,188,1766520360000,93,10],[251,9016,1766521500000,18,12],[251,9016,1766521680000,38,10],[251,9016,1766521860000,38,10],[251,9016,1766522040000,38,10],[252,107,1766779200000,64,10],[252,107,1766779380000,64,5],[252,107,1766779560000,64,9],[252,107,1766779740000,64,10],[252,107,1766779920000,64,10],[252,107,1766780100000,64,6],[253,15,1766780700000,45,20],[253,15,1766780880000,59,10],[253,15,1766781060000,63,9],[253,15,1766781240000,63,5],[253,15,1766781420000,45,6],[254,9005,1766782200000,45,20],[254,9005,1766782380000,63,10],[254,9005,1766782560000,68,10],[254,9005,1766782740000,72,10],[254,9005,1766782920000,72,10],[254,9005,1766783100000,45,15],[255,9010,1766783700000,32,20],[255,9010,1766783880000,68,10],[255,9010,1766784060000,68,10],[255,9010,1766784240000,68,10],[255,9010,1766784420000,68,10],[255,9010,1766784600000,36,20],[256,9022,1766785200000,6,20],[256,9022,1766785380000,6,10],[257,9024,1766786700000,3.4,20],[257,9024,1766786880000,7.9,15],[258,37,1767643200000,20,20],[258,37,1767643380000,20,12],[258,37,1767643560000,20,12],[258,37,1767643740000,20,12],[258,37,1767643920000,20,12],[258,37,1767644100000,20,12],[259,9002,1767644700000,36,20],[259,9002,1767644880000,63,10],[259,9002,1767645060000,63,10],[259,9002,1767645240000,63,10],[259,9002,1767645420000,63,10],[259,9002,1767645600000,36,11],[260,9005,1767646200000,50,20],[260,9005,1767646380000,72,10],[260,9005,1767646560000,77,10],[260,9005,1767646740000,77,5],[260,9005,1767646920000,45,15],[261,9010,1767647700000,41,20],[261,9010,1767647880000,72,10],[261,9010,1767648060000,72,10],[261,9010,1767648240000,72,10],[261,9010,1767648420000,68,10],[261,9010,1767648600000,36,20],[262,171,1767902400000,108,20],[262,171,1767902580000,171,10],[262,171,1767902760000,171,10],[262,171,1767902940000,171,10],[262,171,1767903120000,171,10],[262,171,1767903300000,108,15],[263,187,1767903900000,50,16],[263,187,1767904080000,81,10],[263,187,1767904260000,81,10],[263,187,1767904440000,81,10],[263,187,1767904620000,81,10],[263,187,1767904800000,50,15],[264,188,1767905400000,59,20],[264,188,1767905580000,86,12],[264,188,1767905760000,93.4,10],[264,188,1767905940000,93.4,10],[264,188,1767906120000,93.4,12],[264,188,1767906300000,68,16],[265,227,1774731600000,23,20],[265,227,1774731840000,30,10],[265,227,1774732080000,28,10],[265,227,1774732320000,28,10],[265,227,1774732560000,30,6],[265,227,1774732800000,23,10],[266,15,1774733400000,45,15],[266,15,1774733640000,68,10],[266,15,1774733880000,68,4],[266,15,1774734120000,68,7],[266,15,1774734360000,68,3],[267,37,1774735200000,25,10],[267,37,1774735440000,25,10],[267,37,1774735680000,25,10],[267,37,1774735920000,25,10],[268,118,1774737000000,50,20],[268,118,1774737240000,90,10],[268,118,1774737480000,90,5],[268,118,1774737720000,90,4],[268,118,1774737960000,90,2],[268,118,1774738200000,50,11],[269,227,1775309323411,23,20],[269,227,1775309330812,30,10],[269,227,1775309424882,30,10],[269,227,1775309656495,30,10],[269,227,1775309854025,30,10],[269,227,1775310054239,23,10],[269,118,1775311110926,50,20],[269,118,1775311117744,90,10],[269,118,1775311221697,90,7],[269,118,1775311425122,90,5],[269,118,1775311625938,90,6],[269,118,1775311800641,50,7],[269,60,1775312244513,6,10],[269,60,1775312470496,6,10],[269,60,1775312568330,6,10],[269,60,1775312737976,6,10],[269,83,1775313625561,6,10],[269,83,1775313626015,6,10],[269,83,1775313762404,6,10],[269,83,1775314427286,6,10],[269,7,1776523440142,20,10],[269,7,1776523444219,30,10],[269,7,1776523446209,40,10],[269,7,1776523448884,40,10],[270,15,1775780308014,45,20],[270,15,1775780555038,68,10],[270,15,1775780786160,68,7],[270,15,1775781018638,68,5],[270,15,1775781258694,68,6],[270,15,1775781552386,45,11],[270,227,1775782408825,23,20],[270,227,1775782415201,28,10],[270,227,1775782506300,30,8],[270,227,1775782649901,28,4],[270,249,1775782818814,12,10],[270,249,1775782869858,12,10],[270,249,1775782938539,12,10],[271,60,1775917954413,6,10],[271,60,1775918180055,7,10],[271,60,1775918458777,7,10],[271,60,1775918632662,7,10],[271,83,1775918748016,7,10],[271,83,1775918979837,7,10],[271,83,1775919201962,7,10],[271,83,1775919436567,7,10],[271,37,1775920202115,25,10],[271,37,1775920410191,25,10],[271,37,1775920627264,30,8],[271,37,1775920866247,30,8],[272,7,1776523530463,20,10],[272,7,1776523531862,30,10],[272,7,1776523532628,40,10],[272,7,1776523533562,40,10],[272,83,1776524328765,8,10],[272,83,1776524601426,8,10],[272,83,1776524843985,8,10],[272,83,1776525086532,8,10],[272,60,1776525343690,8,10],[272,60,1776525626512,8,9],[272,60,1776525862556,8,3],[272,60,1776525872389,8,1],[273,118,1777929748756,50,20],[273,118,1777929937681,90,8],[273,118,1777930167615,90,5],[273,118,1777930358256,86,7],[273,118,1777930548374,86,5],[273,118,1777930784586,50,5],[273,60,1777930951885,8,10],[273,60,1777931187898,8,10],[273,60,1777931448137,8,10],[273,60,1777931681053,8,10],[273,83,1777931939018,8,10],[273,83,1777932141770,8,6],[274,15,1778016224614,45,20],[274,15,1778016458267,68,10],[274,15,1778016667976,68,6],[274,15,1778016873118,68,7],[274,15,1778017076005,68,4],[274,15,1778017224689,45,5],[274,37,1778017573401,25,10],[274,37,1778017768626,25,10],[274,37,1778017985633,25,10],[274,37,1778018227905,25,6],[275,15,1778620139220,47.3,18],[275,15,1778620319579,70.3,10],[275,15,1778620520256,70.3,5],[275,15,1778620683059,70.3,4],[275,15,1778620882649,70.3,5],[275,15,1778621131435,47.3,8],[275,37,1778621318078,30,10],[275,37,1778621474262,30,8],[275,37,1778621698849,30,5],[275,37,1778621955691,30,5],[276,118,1778792992996,50,20],[276,118,1778793194409,90,10],[276,118,1778793399369,90,6],[276,118,1778793587405,86,6],[277,15,1779224248609,50,20],[277,15,1779224476706,70.3,10],[277,15,1779224707163,70.3,8],[277,15,1779224941276,70.3,6],[277,15,1779225147340,70.3,5],[277,15,1779225344129,50,8],[277,118,1779225504247,50,20],[277,118,1779225713990,90,10],[277,118,1779225914090,90,5],[277,118,1779226132887,90,5],[278,118,1779472990883,50,20],[278,118,1779473198563,90,10],[278,118,1779473406664,90,6],[278,118,1779473601789,90,7],[278,118,1779473809619,90,5],[278,118,1779473998510,50,6],[278,15,1779474479668,72,10],[278,15,1779474686996,72,10],[278,15,1779474892791,72,6],[278,15,1779475118039,72,5],[279,60,1779830739309,9,10],[279,60,1779830950151,9,10],[279,60,1779831163540,9,10],[279,60,1779831390594,9,10],[279,83,1779831621697,9,10],[279,83,1779831839713,9,7],[279,37,1779832202990,25,10],[279,37,1779832445677,25,10],[279,37,1779832681135,25,10],[279,37,1779832908161,25,10],[280,60,1781042083559,10,10],[280,60,1781042320821,10,10],[280,60,1781042531468,10,6],[280,37,1781042833393,25,10],[280,37,1781043061882,25,10],[280,37,1781043284146,25,5],[281,15,1781644546583,77,10],[281,15,1781644548021,72,7],[281,15,1781644548998,72,4],[281,107,1781644800146,50,5],[281,107,1781644965364,54,10],[281,107,1781645184141,54,10],[281,118,1781645637930,90,4],[281,118,1781645800451,90,3],[282,37,1781818391252,30,10],[282,37,1781818600000,30,10],[282,37,1781818828363,30,5],[282,37,1781819022797,30,3],[282,83,1781819353059,10,10],[282,83,1781819569446,10,8],[282,83,1781819788808,10,5],[282,60,1781819977731,10,10],[282,60,1781820182005,10,2],[283,227,1781820458307,28,10],[283,227,1781820638847,30,10],[283,227,1781820835747,32,10],[283,227,1781821035372,32,5],[284,118,1782251091677,90,10],[284,118,1782251308221,90,10],[284,118,1782251513729,90,5],[284,118,1782251719595,90,3],[284,15,1782251846403,77,2],[284,15,1782251984748,72,10],[284,15,1782252209977,72,6],[285,15,1782570076935,72,10],[285,15,1782570302493,72,10],[285,15,1782570517148,72,5],[286,227,1782570885919,32,10],[286,227,1782571099321,32,10],[286,227,1782571391051,32,10],[286,227,1782571611735,32,10],[287,37,1782571944885,30,10],[287,37,1782572128964,30,3],[287,37,1782572339586,25,4],[288,15,1782854959550,72,10],[288,15,1782855215987,72,10],[288,15,1782855444500,72,6],[288,15,1782855666029,72,3],[289,118,1782855781244,90,10],[289,118,1782856007044,90,10],[289,118,1782856207517,90,6],[289,118,1782856416467,90,4],[290,171,1782856601152,186.8,10],[291,15,1783460017377,72,10],[291,15,1783460270714,72,10],[291,15,1783460497135,72,7],[291,15,1783460704329,72,5],[292,107,1783460981210,54,10],[292,107,1783461226152,50,10],[292,107,1783461435340,41,6],[293,37,1783630364633,30,10],[293,37,1783630566177,30,10],[293,37,1783630758887,30,5],[293,37,1783630967037,30,5],[294,188,1783631451115,77,10],[294,188,1783631622913,77,10],[294,188,1783631815418,93.4,10],[294,188,1783632007407,93.4,10],[295,187,1783632127013,77,10],[295,187,1783632321628,90,8],[295,187,1783632481695,77,10],[295,187,1783632689672,77,10],[296,189,1783632951890,86,10],[296,189,1783633162630,95,10],[296,189,1783633342399,95,10],[296,189,1783633592118,95,7],[297,189,1784064642669,95,10],[297,189,1784064802006,95,10],[297,189,1784065024956,104,10],[297,189,1784065210517,111.4,10],[298,107,1784065410381,41,7],[298,107,1784065628954,41,6],[298,107,1784065849372,41,7],[298,107,1784066065203,41,2],[299,15,1784066245026,72,10],[299,15,1784066483358,72,10],[299,15,1784066747159,72,5],[300,37,1784842520416,25,10],[300,37,1784842765527,25,10],[300,37,1784842964946,25,10],[300,37,1784843197011,25,8],[301,15,1784843493972,72,10],[301,15,1784843823785,72,10],[301,15,1784844031079,72,4],[301,15,1784844225179,54,7],[302,227,1784844390825,32,10],[302,227,1784844610818,32,10],[302,227,1784844823908,32,3],[303,209,1784987916128,64,10],[303,209,1784988125751,64,10],[303,209,1784988345654,64,10],[303,209,1784988589740,64,4],[304,118,1784988887843,90,5],[304,118,1784989114058,90,8],[304,118,1784989298282,90,5],[305,187,1784990222770,93.4,10],[305,187,1784990485266,93.4,8],[305,187,1784990719265,93.4,5],[306,171,1784990991703,186.8,10],[306,171,1784991160946,186.8,10],[306,171,1784991403717,186.8,7],[307,15,1785274248018,77,10],[307,15,1785274470604,77,5],[307,15,1785274707857,63,8],[307,15,1785274960377,50,10],[308,118,1785275097572,95,5],[308,118,1785275294222,90,8],[308,118,1785275587021,90,8],[308,118,1785275817382,90,4],[309,37,1785276069577,30,8],[309,37,1785276323635,30,5],[309,37,1785276568822,25,5],[310,209,1785590868298,73,4],[310,209,1785590999681,64,7],[310,209,1785591141033,64,10],[310,209,1785591331322,64,5],[311,37,1785591684836,25,10],[311,37,1785591933876,25,10],[311,37,1785592241712,25,10],[311,37,1785592582546,25,10],[312,15,1785592748042,68,10],[312,15,1785592981068,72,6],[312,15,1785593231736,72,7],[312,15,1785593426622,72,6],[313,15,1785876876670,81,10],[313,15,1785877107408,81,10],[313,15,1785877312332,81,5],[313,15,1785877532126,81,4],[314,37,1785877960960,30,10],[314,37,1785878194259,30,10],[314,37,1785878460043,30,4],[314,37,1785878697795,30,6],[315,15,1786481706037,86,6],[315,15,1786481914302,81,6],[315,15,1786482147255,81,7],[315,15,1786482382840,81,3],[316,37,1786482608065,30,10],[316,37,1786482823773,30,6],[316,37,1786483044980,30,6],[316,37,1786483315286,30,4],[317,227,1786483738581,32,10],[317,227,1786483900423,32,10],[317,227,1786484082751,32,10],[317,227,1786484244320,32,10],[318,15,1786655393844,60,10],[318,15,1786655525230,60,10],[318,15,1786655750152,60,10],[318,15,1786656036624,60,10],[319,118,1786656804369,41,10],[319,118,1786656807368,81,10],[319,118,1786656918708,95,4],[319,118,1786657088643,90,7],[320,189,1786657495764,95,10],[320,189,1786657496287,95,10],[320,189,1786657618818,104,8],[320,189,1786657786961,104,5],[321,15,1787088394921,81,10],[321,15,1787088612915,86,6],[321,15,1787088814474,83.3,4],[321,15,1787089019830,81,4],[322,37,1787089210046,30,10],[322,37,1787089444435,30,10],[322,37,1787089705463,30,10],[322,37,1787089954909,30,4],[323,209,1787259175591,64,10],[323,209,1787259407615,73,10],[323,209,1787259602581,73,7],[323,209,1787259811105,73,5],[324,60,1787260761950,9,10],[324,60,1787260965230,9,10],[324,60,1787261199016,9,10],[324,60,1787261452997,9,10],[325,189,1787261883879,95,10],[325,189,1787262063203,95,10],[325,189,1787262274395,99,10],[325,189,1787262481351,104,10],[326,188,1787262615136,79,7],[326,188,1787262773971,79,10],[326,188,1787262948700,79,7],[326,188,1787263296330,93.4,10],[327,227,1787865532486,32,10],[327,227,1787865715787,32,10],[327,227,1787865962153,32,10],[327,227,1787866178127,32,10],[328,188,1787866537860,90,10],[328,188,1787866675350,93.4,10],[328,188,1787866826582,93.4,10],[328,188,1787867069207,93.4,10],[329,37,1787867320622,35,8],[329,37,1787867506863,35,6],[329,37,1787867857375,35,2],[330,187,1787868100364,93.4,10],[330,187,1787868277547,93.4,10],[330,187,1787868559093,93.4,10],[330,187,1787868717706,93.4,6],[331,15,1788297187390,82.1,8],[331,15,1788297394629,81,6],[331,15,1788297603237,78,4],[331,15,1788297836043,59,6],[332,227,1788298036137,32,10],[332,227,1788298228636,32,10],[332,227,1788298460582,32,10],[332,227,1788298860982,32,10],[333,37,1788298970793,35,7],[333,37,1788299196657,35,5],[333,37,1788299421989,35,3],[334,187,1788299601165,63,10],[334,187,1788299739305,63,10],[334,187,1788299861871,63,10],[334,187,1788300026479,63,10],[335,15,1788893953235,82.1,10],[335,15,1788894171881,82.1,6],[335,15,1788894354481,77,6],[335,15,1788894540722,59,7],[336,187,1788894712363,75.4,10],[336,187,1788894917750,75.4,10],[336,187,1788895129224,75.4,10],[336,187,1788895395895,75.4,10],[337,37,1788895513735,35,10],[337,37,1788895728605,35,4],[337,37,1788895976310,30,3],[338,60,1788896290774,7,10],[338,60,1788896481452,7,10],[338,60,1788896739273,7,10],[338,60,1788896976441,7,10],[339,15,1789070738027,50,10],[339,15,1789070968069,72,10],[339,15,1789071182386,77,10],[339,15,1789071434227,77,5],[340,60,1789071556762,8,10],[340,60,1789071830787,8,10],[340,60,1789072049654,8,10],[340,60,1789072315264,8,10],[341,37,1789072495183,35,6],[341,37,1789072699043,35,6],[342,209,1789663777573,73,10],[342,209,1789664005933,73,10],[342,209,1789664227755,73,6],[342,209,1789664441303,73,2],[343,15,1789664670891,82.1,10],[343,15,1789664908528,82.1,3],[343,15,1789665077604,59,8],[343,15,1789665314675,59,6],[344,60,1789665599493,8,10],[344,60,1789665806829,9,10],[344,60,1789665990371,9,10],[345,60,1790108239824,9,10],[345,60,1790108448699,9,10],[345,60,1790108641588,9,10],[345,60,1790108896504,9,10],[346,15,1790109124299,82.1,10],[346,15,1790109363970,82.1,8],[346,15,1790109621170,82.1,3],[346,15,1790109834625,63,9],[347,37,1790110049622,35,5],[347,37,1790110150752,30,6],[347,37,1790110343240,30,6],[348,118,1790281101157,90,10],[348,118,1790281325969,95,7],[348,118,1790281560823,95,7],[348,118,1790281782911,68,7],[349,187,1790281912663,81,10],[349,187,1790282179862,93.4,10],[349,187,1790282370933,93.4,10],[349,187,1790282592799,93.4,7],[350,60,1790282812870,9,10],[350,60,1790283046061,9,10],[350,60,1790283302415,9,10],[350,60,1790283542436,9,6],[351,15,1790722169623,81,10],[351,15,1790722393538,81,10],[351,15,1790722607442,81,5],[351,15,1790722827725,68,5],[352,37,1790723034470,30,7],[352,37,1790723242449,30,4],[352,37,1790723457119,30,5],[353,60,1790724143008,7,10],[353,60,1790724357887,7,10],[353,60,1790724683952,7,10],[354,227,1790885935311,32,10],[354,227,1790886189533,32,10],[354,227,1790886366311,32,10],[354,227,1790887676838,32,10],[355,6,1790887719825,45,10],[355,6,1790887720525,45,10],[355,6,1790887721241,45,10],[355,6,1790887725322,45,10],[356,188,1790888188116,77,10],[356,188,1790888341933,93.4,10],[356,188,1790888493130,93.4,10],[356,188,1790888765698,93.4,10],[357,171,1791247572591,186.8,10],[357,171,1791247773626,186.8,10],[357,171,1791247998603,186.8,10],[357,171,1791248254241,186.8,10],[358,187,1791317980601,93.4,10],[358,187,1791318112148,93.4,10],[358,187,1791318290394,93.4,7],[358,187,1791318483587,93.4,8],[359,188,1791318693525,93.4,10],[359,188,1791318868205,93.4,10],[359,188,1791319024716,93.4,10],[359,188,1791319476650,93.4,10],[360,60,1791319496838,10,10],[360,60,1791319704448,10,10],[360,60,1791319949883,10,10],[360,60,1791320177834,10,7],[361,187,1791490224975,59,10],[361,187,1791490292801,59,10],[362,15,1791490420007,54,10],[362,15,1791490569377,63,10],[362,15,1791490755618,68,10],[362,15,1791490944067,68,10],[363,118,1791491070023,68,10],[363,118,1791491232026,68,10],[363,118,1791491411913,68,8],[364,60,1791491763848,10,7],[364,60,1791492010984,10,7],[364,60,1791492269079,10,4]],"body":{"pts":[[1749744000000,113],[1759417200000,114],[1782921600000,120],[1784390400000,120],[1784822400000,118.3],[1785772800000,120],[1785945600000,117.8],[1786204800000,119],[1786636800000,118],[1787068800000,118],[1787155200000,120],[1787241600000,118],[1787500800000,118],[1788019200000,116],[1788192000000,116.15],[1788364800000,117.4],[1788537600000,116.8],[1788706800000,117.3],[1790866800000,118.6],[1791039600000,118.3],[1791126000000,118.25],[1791644400000,118]],"nutr":[[1784390400000,0,0],[1784822400000,1680,0],[1784908800000,1900,0],[1784995200000,2080,0],[1785772800000,1850,0],[1785859200000,1600,80],[1785945600000,1400,74],[1786032000000,2400,60],[1786118400000,1550,70],[1786204800000,0,0],[1786636800000,0,0],[1787068800000,1950,75],[1787155200000,1700,100],[1787241600000,1400,60],[1787328000000,750,32],[1787500800000,0,0],[1788019200000,0,0],[1788192000000,0,0],[1788278400000,640,34],[1788364800000,0,0],[1788537600000,0,0],[1788706800000,0,0],[1789052400000,1500,0],[1790866800000,0,0],[1791039600000,0,0],[1791126000000,0,0]],"cfg":{"meta_peso":"90.0","meta_diaria":"2376.0","limite_bajo":"1901.0","limite_alto":"2851.0","meta_proteina":"160.0","objetivo_calorico":"loss","calorias_mantenimiento":"3168.0"}}};
+
+// Peso corporal (archivo Quantia)
+const BODY = DATA.body || {pts: [], nutr: [], cfg: {}};   // pts: [[ms, kg]]  nutr: [[ms, kcal, proteína]]
+function bwAt(t) {   // peso interpolado entre pesajes; antes del primero se asume el primero
+  const p = BODY.pts;
+  if (!p.length) return 118;
+  if (t <= p[0][0]) return p[0][1];
+  if (t >= p[p.length - 1][0]) return p[p.length - 1][1];
+  let i = 1; while (p[i][0] < t) i++;
+  const [t0, w0] = p[i - 1], [t1, w1] = p[i];
+  return w0 + (w1 - w0) * (t - t0) / (t1 - t0);
+}
+// Ejercicios con asistencia: el peso registrado es la ayuda (menos ayuda = mejor).
+// La carga real que levantas es tu peso corporal − la ayuda.
+const ASSISTED = new Set(['107', '9013']);
+
+// Peso máximo de cada máquina (kg). Si ya lo usas, solo puedes avanzar con repeticiones, descanso o técnica.
+const MACHINE_MAX = {171: 186.8, 187: 93.4, 188: 93.4, 189: 111.4, 227: 32};   // 227: tope aproximado ("30 y tanto"); 189: tu máximo de un día es todo lo que da la máquina
+const MAXED_ICON = '✅';   // marca (al inicio del nombre) las máquinas en las que ya llegaste al peso máximo
+const isMaxed = id => !!MACHINE_MAX[id] && !!byEx[id] && byEx[id].some(d => d.maxw >= MACHINE_MAX[id] - 0.05);
+const nameIcon = id => (isMaxed(id) ? MAXED_ICON + ' ' : '') + nameOf(id);
+// Los dos tríceps en polea usan máquinas con distinta escala: los kg no se pueden comparar entre ellos.
+const SCALE_NOTE = {
+  227: 'Polea con barra recta en la máquina 1, la de menos peso (tope ~32 kg): ya la llevas al máximo y avanzas con repeticiones. Sus kilos no se comparan con los de la máquina 2.',
+  209: 'Polea con barra recta en la máquina 2, la de más peso: 30 kg de la máquina 1 equivalen a unos 60–70 kg aquí. No compares los kilos entre ambas.'
+};
+// En totales y volumen semanal, el tríceps de la máquina 2 (más peso) cuenta a la mitad por esa diferencia de escala.
+const VOL_FACTOR = {209: 0.5};
+
+// Reparto aproximado del trabajo entre músculos en cada ejercicio (% que suma 100).
+// Son valores típicos estimados, no una medición: cambian según técnica, máquina y agarre.
+const MUSCLES = {
+  15:  {Pecho: 60, Tríceps: 20, Hombros: 20},                 // fondos de pecho (máquina)
+  7:   {Pecho: 55, Tríceps: 25, Hombros: 20},                 // press de banca con barra
+  6:   {Pecho: 45, Hombros: 30, Tríceps: 25},                 // press inclinado con barra
+  249: {Pecho: 80, Hombros: 20},                              // aperturas en máquina
+  37:  {Bíceps: 80, Antebrazos: 15, Hombros: 5},              // curl con barra
+  118: {Espalda: 70, Bíceps: 20, Antebrazos: 10},             // jalones con máquina
+  107: {Espalda: 65, Bíceps: 25, Antebrazos: 10},             // dominadas asistidas
+  60:  {Hombros: 85, Espalda: 15},                            // elevaciones laterales (trapecio en Espalda)
+  83:  {Hombros: 90, Pecho: 10},                              // elevaciones frontales
+  227: {Tríceps: 95, Antebrazos: 5},                          // tríceps una mano con cable
+  209: {Tríceps: 95, Antebrazos: 5},                          // tríceps cable barra recta
+  187: {Aductores: 90, Core: 10},                             // máquina de abductores (dentro)
+  188: {Glúteos: 85, Core: 15},                               // máquina de abductor (fuera)
+  189: {Core: 100},                                           // abdominales en máquina
+  171: {Cuádriceps: 55, Glúteos: 30, Isquiotibiales: 10, Pantorrillas: 5},   // prensa de piernas (en la app figura como "Curl de pierna")
+  9002: {Cuádriceps: 100},                                    // extensión de piernas
+  9003: {Isquiotibiales: 85, Pantorrillas: 15},               // curl de pierna sentado
+  9004: {Pantorrillas: 100},
+  9005: {Espalda: 65, Bíceps: 25, Hombros: 10},
+  9006: {Cuádriceps: 55, Glúteos: 30, Isquiotibiales: 10, Pantorrillas: 5},
+  9007: {Hombros: 65, Tríceps: 25, Pecho: 10},
+  9008: {Antebrazos: 100},
+  9009: {Pecho: 85, Hombros: 15},
+  9010: {Espalda: 70, Bíceps: 20, Antebrazos: 10},
+  9011: {Tríceps: 100},
+  9012: {Tríceps: 100},
+  9013: {Tríceps: 55, Pecho: 25, Hombros: 20},
+  9014: {Isquiotibiales: 35, Glúteos: 30, Espalda: 25, Antebrazos: 10},
+  9016: {Glúteos: 100},
+  9017: {Core: 100},
+  9018: {Core: 100},
+  9019: {Hombros: 90, Espalda: 10},
+  9020: {Espalda: 65, Bíceps: 25, Hombros: 10},
+  9021: {Tríceps: 100},
+  9022: {Bíceps: 60, Antebrazos: 40},
+  9023: {Espalda: 80, Tríceps: 20},
+  9024: {Hombros: 70, Espalda: 30},
+  9025: {Espalda: 60, Glúteos: 25, Isquiotibiales: 15},
+  9026: {Pecho: 85, Hombros: 15}                                   // elevación de talones de pie
+};
+const muscleTxt = id => Object.entries(MUSCLES[id] || {}).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}%`).join(' · ') || '–';
+// DATA.sessions: [{s: startMs, e: endMs|null}], DATA.perf: [sessionIdx, exerciseId, completedMs, kg, reps]
+
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const fmt = n => n.toLocaleString('es', {maximumFractionDigits: 1});
+const fmt2 = n => n.toLocaleString('es', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const fmt0 = n => Math.round(n).toLocaleString('es');
+const fecha = (ms, o) => new Date(ms).toLocaleDateString('es', o || {day:'numeric', month:'short', year:'numeric'});
+
+// Nombres editables (el backup solo trae IDs)
+let names = {};
+try { names = JSON.parse(localStorage.getItem('names') || '{}'); } catch (e) {}
+const DEFAULT_NAMES = {"6":"Press inclinado con barra","9002":"Extensión de piernas","9005":"Remo sentado en máquina","9006":"Prensa 45°","9007":"Press de hombros en máquina","9008":"Antebrazo posterior en polea","9009":"Polea pecho inferior (apertura)","9010":"Lat pulldown unilateral","9011":"Tríceps polea cuerda","9012":"Tríceps francés en polea","9013":"Fondos de tríceps asistidos","9014":"Peso muerto","9016":"Glúteo en polea","9017":"Rotación en polea (oblicuos)","9018":"Abdominal oblicuo en máquina","9019":"Elevación múltiple lateral-frontal","9020":"Remo en polea","9021":"Tríceps sobre cabeza en polea","9022":"Curl martillo con mancuerna","9023":"Pull over en polea","9024":"Vuelo posterior en polea","9025":"Back extension","9026":"Cross over en polea","9003":"Curl de pierna sentado","9004":"Elevación de talones de pie (peso corporal)","7":"Press de banca con barra","249":"Aperturas en máquina","15":"Fondos de pecho","37":"Curl con barra agarre cerrado","60":"Elevaciones laterales","83":"Elevaciones frontales","107":"Dominadas asistidas","118":"Jalones con máquina","171":"Prensa de piernas","187":"Aductores (dentro)","188":"Abductor (fuera)","189":"Abdominales en máquina","209":"Tríceps polea barra recta (máquina 2)","227":"Tríceps polea barra recta (máquina 1)"};
+const nameOf = id => names[id] || DEFAULT_NAMES[id] || ('Ejercicio ' + id);
+
+// ---- Preparar datos
+const sessions = DATA.sessions;
+const BODYWEIGHT_EX = new Set(['9004']);   // ejercicios con tu peso corporal (el peso se toma de tus pesajes)
+const perf = DATA.perf.map(([si, ex, t, w, r]) => {
+  const b = BODYWEIGHT_EX.has(String(ex));
+  if (b) w = Math.round(bwAt(t) * 10) / 10;
+  const a = ASSISTED.has(String(ex)), eff = a ? Math.max(1, bwAt(t) - w) : w;   // eff = carga real
+  return {si, ex: String(ex), t, w, r, a, b, eff, e1: r <= 1 ? eff : eff * (1 + r / 30), v: eff * r, vt: eff * r * (VOL_FACTOR[ex] || 1)};
+});
+const preLabel = si => sessions[si].r ? 'recuerdo, fecha estimada' : sessions[si].f ? 'historial Smart Fit, 12 reps asumidas' : sessions[si].i ? 'inicio en el gym, fecha estimada' : sessions[si].h ? 'marca histórica' : 'nota antigua, fecha estimada';
+const setTxt = p => p.a ? `${fmt(p.w)} kg de ayuda × ${p.r}` : p.b ? `peso corporal (${fmt(p.w)} kg) × ${p.r}` : `${fmt(p.w)} kg × ${p.r}`;
+const exIds = [...new Set(perf.map(p => p.ex))];
+
+// por ejercicio -> por sesión: mejor serie
+const byEx = {};
+for (const id of exIds) {
+  const m = new Map();
+  for (const p of perf.filter(p => p.ex === id)) {
+    const cur = m.get(p.si) || {si: p.si, t: sessions[p.si].s, e1: 0, maxw: null, vol: 0, sets: 0, best: null};
+    cur.vol += p.v; cur.sets++;
+    if (cur.maxw === null || (p.a ? p.w < cur.maxw : p.w > cur.maxw)) cur.maxw = p.w;   // asistido: la menor ayuda es la mejor
+    if (p.e1 > cur.e1) { cur.e1 = p.e1; cur.best = p; }
+    m.set(p.si, cur);
+  }
+  byEx[id] = [...m.values()].sort((a, b) => a.t - b.t);
+}
+exIds.sort((a, b) => perf.filter(p => p.ex === b).length - perf.filter(p => p.ex === a).length);
+
+// ---- Utilidades de gráficos
+function el(tag, attrs, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function niceTicks(lo, hi, n) {
+  if (hi === lo) { hi = lo + 1; }
+  const raw = (hi - lo) / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(f => f * mag).find(s => s >= raw);
+  const a = Math.floor(lo / step) * step, b = Math.ceil(hi / step) * step, out = [];
+  for (let v = a; v <= b + step / 2; v += step) out.push(+v.toFixed(6));
+  return out;
+}
+const tt = $('tt');
+function showTT(host, x, y, html) {
+  tt.innerHTML = html; tt.style.display = "block";
+  const hb = host.getBoundingClientRect();
+  let left = hb.left + x + 12, top = hb.top + y - 12;
+  if (left + tt.offsetWidth > innerWidth - 8) left = hb.left + x - tt.offsetWidth - 12;
+  tt.style.left = Math.max(8, left) + "px"; tt.style.top = Math.max(8, top) + "px";
+}
+const hideTT = () => { tt.style.display = 'none'; };
+
+// ---- Tablas ordenables: clic en un encabezado ordena (otro clic invierte el orden)
+const sortState = {};   // por tabla: {col, dir}; se conserva al volver a dibujarla
+function cellVal(td) {
+  const raw = td.dataset.v !== undefined ? td.dataset.v : td.textContent.trim();
+  if (raw === '') return '';
+  if (td.dataset.v !== undefined && isFinite(Number(raw))) return Number(raw);
+  const m = String(raw).replace(/\s/g, ' ').match(/^[^\d-]*(-?\d[\d.,]*)/);
+  if (m) { const n = parseFloat(m[1].replace(/\./g, '').replace(',', '.')); if (isFinite(n)) return n; }
+  return String(raw);
+}
+function sortTable(table, col, dir) {
+  const tb = table.tBodies[0], rows = [...tb.rows];
+  rows.sort((a, b) => {
+    const x = cellVal(a.cells[col]), y = cellVal(b.cells[col]), nx = typeof x === 'number', ny = typeof y === 'number';
+    if (nx && ny) return (x - y) * dir;
+    if (nx !== ny) return nx ? -1 : 1;   // números antes que texto; vacíos al final
+    if (x === '' || y === '') return x === y ? 0 : x === '' ? 1 : -1;
+    return String(x).localeCompare(String(y), 'es') * dir;
+  });
+  rows.forEach(r => tb.appendChild(r));
+}
+function makeSortable(table, key) {
+  if (!table || !table.tHead || !table.tBodies[0]) return;
+  const ths = [...table.tHead.rows[0].cells];
+  const mark = () => ths.forEach((th, i) => { const s = sortState[key]; if (s && s.col === i) th.setAttribute('aria-sort', s.dir > 0 ? 'ascending' : 'descending'); else th.removeAttribute('aria-sort'); });
+  ths.forEach((th, i) => {
+    if (th.dataset.nosort !== undefined) return;
+    th.classList.add('sortable');
+    th.onclick = () => {
+      const s = sortState[key], first = table.tBodies[0].rows[0];
+      const dir = s && s.col === i ? -s.dir : (first && typeof cellVal(first.cells[i]) === 'number' ? -1 : 1);   // números: de mayor a menor primero
+      sortState[key] = {col: i, dir}; sortTable(table, i, dir); mark();
+    };
+  });
+  const s = sortState[key];
+  if (s) sortTable(table, s.col, s.dir);
+  mark();
+}
+
+// Recta de mínimos cuadrados (x en ms)
+function regress(pts) {
+  const n = pts.length, mx = pts.reduce((a, p) => a + p.x, 0) / n, my = pts.reduce((a, p) => a + p.y, 0) / n;
+  let sxy = 0, sxx = 0;
+  for (const p of pts) { sxy += (p.x - mx) * (p.y - my); sxx += (p.x - mx) ** 2; }
+  const b = sxx ? sxy / sxx : 0;
+  return {a: my - b * mx, b};
+}
+
+// ---- Gráfico de línea
+function lineChart(host, pts, o) {
+  host.innerHTML = '';
+  const W = Math.max(host.clientWidth, 280), H = Math.min(340, Math.max(220, W * 0.42));
+  const m = {l: 48, r: 16, t: 12, b: 28};
+  const svg = el('svg', {viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': o.label}, host);
+  if (!pts.length) { el('text', {x: W / 2, y: H / 2, 'text-anchor': 'middle', fill: 'var(--muted)'}, svg).textContent = 'Sin datos'; return; }
+  const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+  let x0 = Math.min(...xs), x1 = Math.max(...xs);
+  if (x0 === x1) { x0 -= 864e5 * 3; x1 += 864e5 * 3; }
+  const yt = niceTicks(Math.min(...ys) * 0.95, Math.max(...ys) * 1.03, 4);
+  const y0 = yt[0], y1 = yt[yt.length - 1];
+  const X = x => m.l + (x - x0) / (x1 - x0) * (W - m.l - m.r);
+  const Y = y => H - m.b - (y - y0) / (y1 - y0) * (H - m.t - m.b);
+  for (const t of yt) {
+    el('line', {x1: m.l, x2: W - m.r, y1: Y(t), y2: Y(t), stroke: 'var(--grid)'}, svg);
+    el('text', {x: m.l - 8, y: Y(t) + 4, 'text-anchor': 'end', fill: 'var(--muted)', 'font-size': 12}, svg).textContent = (o.yfmt || fmt0)(t);
+  }
+  el('line', {x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, stroke: 'var(--axis)'}, svg);
+  const nx = Math.max(2, Math.floor((W - m.l - m.r) / 90));
+  for (let i = 0; i <= nx; i++) {
+    const t = x0 + (x1 - x0) * i / nx;
+    el('text', {x: X(t), y: H - 8, 'text-anchor': i === 0 ? 'start' : i === nx ? 'end' : 'middle', fill: 'var(--muted)', 'font-size': 12}, svg)
+      .textContent = fecha(t, {day: 'numeric', month: 'short'});
+  }
+  el('path', {d: pts.map((p, i) => (i && !p.brk ? 'L' : 'M') + X(p.x) + ' ' + Y(p.y)).join(''), fill: 'none', stroke: 'var(--s1)', 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round'}, svg);
+  const tp = pts.slice(o.trendFrom || 0);   // la tendencia puede calcularse solo sobre el tramo reciente
+  if (o.trend && tp.length >= 3) {
+    const g = regress(tp), a = tp[0], z = tp[tp.length - 1];
+    el('line', {x1: X(a.x), y1: Y(g.a + g.b * a.x), x2: X(z.x), y2: Y(g.a + g.b * z.x), stroke: 'var(--muted)', 'stroke-width': 2, 'stroke-dasharray': '6 5'}, svg);
+  }
+  const dots = pts.map(p => el('circle', {cx: X(p.x), cy: Y(p.y), r: pts.length > 40 ? 3 : 4, fill: p.est ? 'var(--surface)' : p.pr ? 'var(--s2)' : 'var(--s1)', stroke: p.est ? 'var(--s1)' : 'var(--surface)', 'stroke-width': 2}, svg));
+  const si = o.sel == null ? -1 : pts.findIndex(p => p.key === o.sel);
+  if (si >= 0) el('circle', {cx: X(pts[si].x), cy: Y(pts[si].y), r: 9, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 2}, svg);
+  // etiquetas directas: primero y último
+  [0, pts.length - 1].filter((v, i, a) => a.indexOf(v) === i).forEach(i => {
+    const p = pts[i];
+    el('text', {x: X(p.x), y: Y(p.y) - 10, 'text-anchor': i === 0 && pts.length > 1 ? 'start' : 'end', fill: 'var(--ink)', 'font-size': 12, 'font-weight': 600}, svg).textContent = (o.vfmt || fmt)(p.y);
+  });
+  const cross = el('line', {y1: m.t, y2: H - m.b, stroke: 'var(--muted)', 'stroke-dasharray': '3 3', visibility: 'hidden'}, svg);
+  const hit = el('rect', {x: m.l, y: 0, width: W - m.l - m.r, height: H, fill: 'transparent'}, svg);
+  let cur = -1;
+  const nearest = e => {
+    const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) * W / r.width;
+    let bi = 0, bd = 1e9;
+    pts.forEach((p, i) => { const d = Math.abs(X(p.x) - px); if (d < bd) { bd = d; bi = i; } });
+    return bi;
+  };
+  hit.style.cursor = o.onPick ? 'pointer' : 'default';
+  hit.addEventListener('click', e => { if (o.onPick) o.onPick(pts[nearest(e)]); });
+  hit.addEventListener('pointermove', e => {
+    const r = svg.getBoundingClientRect(), bi = nearest(e);
+    if (cur >= 0) dots[cur].setAttribute('r', pts.length > 40 ? 3 : 4);
+    cur = bi; dots[bi].setAttribute('r', 6);
+    cross.setAttribute('x1', X(pts[bi].x)); cross.setAttribute('x2', X(pts[bi].x)); cross.setAttribute('visibility', 'visible');
+    showTT(host, X(pts[bi].x) * r.width / W, Y(pts[bi].y) * r.width / W, pts[bi].tip);
+  });
+  hit.addEventListener('pointerleave', () => { cross.setAttribute('visibility', 'hidden'); hideTT(); if (cur >= 0) dots[cur].setAttribute('r', pts.length > 40 ? 3 : 4); cur = -1; });
+}
+
+// ---- Gráfico de barras (vertical u horizontal)
+function barChart(host, items, o) {
+  host.innerHTML = '';
+  const W = Math.max(host.clientWidth, 280);
+  if (o.horizontal) {
+    const rowH = 26, m = {l: 245, r: 48, t: 4, b: 4}, H = m.t + m.b + items.length * rowH;
+    const svg = el('svg', {viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': o.label}, host);
+    const max = Math.max(...items.map(i => i.v));
+    items.forEach((it, i) => {
+      const y = m.t + i * rowH, w = Math.max(2, it.v / max * (W - m.l - m.r));
+      const t = el('text', {x: m.l - 8, y: y + rowH / 2 + 4, 'text-anchor': 'end', fill: 'var(--ink2)', 'font-size': 12}, svg);
+      t.textContent = it.label.length > 42 ? it.label.slice(0, 41) + '…' : it.label;
+      const g = el('g', {}, svg);
+      el('path', {d: `M${m.l} ${y + 3}H${m.l + w - 4}a4 4 0 0 1 4 4v${rowH - 12}a4 4 0 0 1 -4 4H${m.l}Z`, fill: 'var(--s1)'}, g);
+      el('text', {x: m.l + w + 6, y: y + rowH / 2 + 4, fill: 'var(--ink)', 'font-size': 12}, g).textContent = it.v + (o.suffix || '');
+      const hit = el('rect', {x: 0, y, width: W, height: rowH, fill: 'transparent'}, g);
+      hit.addEventListener('pointermove', e => { const r = svg.getBoundingClientRect(); showTT(host, (e.clientX - r.left), y * r.width / W, it.tip); });
+      hit.addEventListener('pointerleave', hideTT);
+    });
+    return;
+  }
+  const H = 240, m = {l: 48, r: 8, t: 12, b: 28};
+  const svg = el('svg', {viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': o.label}, host);
+  const yt = niceTicks(0, Math.max(...items.map(i => i.v)) * 1.05, 4), ymax = yt[yt.length - 1];
+  const Y = v => H - m.b - v / ymax * (H - m.t - m.b);
+  for (const t of yt) {
+    el('line', {x1: m.l, x2: W - m.r, y1: Y(t), y2: Y(t), stroke: 'var(--grid)'}, svg);
+    el('text', {x: m.l - 8, y: Y(t) + 4, 'text-anchor': 'end', fill: 'var(--muted)', 'font-size': 12}, svg).textContent = t >= 1000 ? fmt(t / 1000) + 'k' : fmt0(t);
+  }
+  const slot = (W - m.l - m.r) / items.length, bw = Math.max(3, slot - 2);
+  items.forEach((it, i) => {
+    const x = m.l + i * slot + (slot - bw) / 2, h = it.v ? Math.max(2, H - m.b - Y(it.v)) : 0, r = Math.min(4, bw / 2);
+    const g = el('g', {}, svg);
+    if (h) el('path', {d: `M${x} ${H - m.b}V${H - m.b - h + r}a${r} ${r} 0 0 1 ${r} -${r}H${x + bw - r}a${r} ${r} 0 0 1 ${r} ${r}V${H - m.b}Z`, fill: 'var(--s1)'}, g);
+    el('rect', {x: m.l + i * slot, y: 0, width: slot, height: H - m.b, fill: 'transparent'}, g)
+      .addEventListener('pointermove', e => { const rr = svg.getBoundingClientRect(); showTT(host, (m.l + i * slot + slot / 2) * rr.width / W, Y(it.v) * rr.width / W, it.tip); });
+    g.addEventListener('pointerleave', hideTT);
+  });
+  el('line', {x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, stroke: 'var(--axis)'}, svg);
+  const every = Math.ceil(items.length / Math.max(2, Math.floor((W - m.l) / 70)));
+  items.forEach((it, i) => { if (i % every === 0) el('text', {x: m.l + i * slot + slot / 2, y: H - 8, 'text-anchor': 'middle', fill: 'var(--muted)', 'font-size': 12}, svg).textContent = it.axis; });
+}
+
+function sparkline(vals) {
+  const W = 90, H = 24, lo = Math.min(...vals), hi = Math.max(...vals);
+  if (vals.length < 2) return '';
+  const pts = vals.map((v, i) => `${(i / (vals.length - 1) * (W - 4) + 2).toFixed(1)},${(H - 3 - (hi === lo ? 0.5 : (v - lo) / (hi - lo)) * (H - 6)).toFixed(1)}`).join(' ');
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+}
+
+// ---- Estado
+let selEx = exIds[0], metric = 'e1rm', asTable = false, rangeDays = 0, selDay = null;
+// rangeDays: 0 = todo, -1 = este año (desde el 1 de enero), N = últimos N días
+const cutoff = () => rangeDays === -1 ? new Date(new Date().getFullYear(), 0, 1).getTime() : rangeDays ? Date.now() - rangeDays * 864e5 : 0;
+const METRICS = {
+  e1rm: {name: '1RM estimado', unit: 'kg', f: fmt, get: d => d.e1},
+  maxw: {name: 'Peso máximo', unit: 'kg', f: fmt, get: d => d.maxw},
+  vol: {name: 'Volumen', unit: 'kg', f: fmt, get: d => d.vol},
+  rel: {name: 'Fuerza relativa', unit: '× peso', f: fmt2, get: d => d.e1 / bwAt(d.t)}
+};
+
+// ---- Resumen (tiles)
+function renderTiles() {
+  // Las notas antiguas (fecha estimada) no cuentan para totales ni frecuencia
+  const real = sessions.filter(s => !s.n), appFirst = Math.min(...sessions.filter(s => !s.n && !s.c).map(s => s.s)), nChat = sessions.filter(s => s.c).length, rperf = perf.filter(p => !sessions[p.si].n), nNotes = sessions.length - real.length;
+  const durs = real.filter(s => s.e).map(s => s.e - s.s);
+  const avgMin = durs.length ? durs.reduce((a, b) => a + b, 0) / durs.length / 60000 : 0;
+  const tot = rperf.reduce((a, p) => a + p.vt, 0);
+  const first = Math.min(...real.map(s => s.s)), last = Math.max(...real.map(s => s.s));
+  const kNotes = sessions.filter(s => s.n && !s.h && !s.i && !s.f && !s.r), nMarks = sessions.filter(s => s.h).length, nStart = sessions.filter(s => s.i).length, nSmart = sessions.filter(s => s.f).length, nRecall = sessions.filter(s => s.r).length;
+  const noteDate = kNotes.length ? Math.min(...kNotes.map(s => s.s)) : null;
+  const weeks = Math.max(1, (last - first) / (7 * 864e5));
+  $('note').innerHTML = `<b>Ojo con el punto de partida:</b> entrenas desde el 1 de abril de 2025. Tengo tu <b>chat de WhatsApp</b> con ${nChat} registros reales de ${fecha(first, {day: 'numeric', month: 'short', year: 'numeric'})} a enero de 2026 (las series tienen fecha, pero no hora real), y tu app Progression desde el ${fecha(appFirst)}. Entre enero y abril de 2026 no hay registros. ` +
+    (nStart ? `Como <b>inicio en el gym</b> (1 de abril de 2025) puse los pesos con los que dices que partiste en cada ejercicio, con 4 repeticiones; es un cálculo de memoria, no un registro. ` : '') +
+    (nSmart ? `Para abril y mayo de 2025 usé tu <b>historial de la app Smart Fit</b> (aductor, abductor, extensión de piernas y curl de pierna sentado). Solo trae el peso por día, así que asumí <b>12 repeticiones</b> porque tu rutina era 3×12 a 15. ` : '') +
+    (nRecall ? `Las <b>pantorrillas</b> (${nRecall} sesiones de 10×10 con tu peso, hace unos 2 meses) son un recuerdo con fecha estimada. ` : '') +
+    (nMarks ? `Las <b>marcas históricas</b> de 2025 (prensa, extensión y aductores, con 4 repeticiones al peso máximo de la máquina) tienen fecha real y salen como círculos huecos. ` : '') +
+    (kNotes.length ? `Como punto de partida uso tus notas antiguas de Keep, que aparecen como círculos huecos con fecha <b>estimada</b> (${fecha(noteDate, {day: 'numeric', month: 'long'})}): no traían fecha y las ubiqué justo antes de la app porque sus mejores series coinciden con tus primeros registros. ` : '') +
+    `Lo que haces pero no registras en la app no aparece en este panel. Las notas y marcas no cuentan en los totales ni en la frecuencia.`;
+  $('range').textContent = `${fecha(first)} → ${fecha(last)}`;
+  const days = new Set(real.map(s => new Date(s.s).toDateString())).size;
+  const t = [
+    [days, 'días entrenados', 'Días distintos con al menos una serie registrada.'],
+    [(days / weeks).toFixed(1).replace('.', ','), 'días por semana', 'Días entrenados ÷ semanas desde tu primer registro.'],
+    [rperf.length, 'series registradas', 'Cada bloque de repeticiones con un mismo peso, calentamientos incluidos.'],
+    [fmt0(tot / 1000) + ' t', 'volumen total', 'Suma de peso × repeticiones de todas las series. 1 t = 1.000 kg.'],
+    [fmt0(avgMin) + ' min', 'por ejercicio (media)', 'Tiempo medio que dura cada ejercicio, de la primera a la última serie.']
+  ];
+  $('tiles').innerHTML = t.map(([v, l, h]) => `<div class="tile" title="${h}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+}
+
+// ---- Gráfico principal
+function renderMain() {
+  const asst = ASSISTED.has(selEx), lowerBetter = asst && metric === 'maxw';   // en dominadas asistidas, menos ayuda = mejor
+  const M = lowerBetter ? {...METRICS.maxw, name: 'Ayuda (menos es mejor)'} : METRICS[metric], all = byEx[selEx];
+  // Récords: se calculan sobre todo el historial y luego se filtra por periodo
+  let best = lowerBetter ? Infinity : -Infinity, lastPR = null;
+  const flagged = all.map((d, i) => {
+    const v = M.get(d), pr = i > 0 && (lowerBetter ? v < best : v > best);
+    if (pr) lastPR = d;
+    best = lowerBetter ? Math.min(best, v) : Math.max(best, v);
+    return {d, v, pr};
+  });
+  const cut = cutoff();
+  const rows = all.filter(d => d.t >= cut);
+  const pts = flagged.filter(f => f.d.t >= cut).map(({d, v, pr}) => ({
+    x: d.t, y: v, pr, key: d.si, est: !!sessions[d.si].n,
+    tip: `<b>${fecha(d.t)}${sessions[d.si].n ? ' (' + preLabel(d.si) + ')' : sessions[d.si].c ? ' (WhatsApp)' : ''}</b>${M.name}: ${M.f(v)} ${M.unit}${pr ? ' · <b>🏆 Récord</b>' : ''}<br><span>Mejor serie: ${setTxt(d.best)} · ${d.sets} series</span><br><span>Clic para ver el detalle</span>`
+  }));
+  document.querySelectorAll('[data-m]').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === metric));
+  document.querySelectorAll('[data-r]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.r === rangeDays));
+  $('tbl').setAttribute('aria-pressed', asTable);
+  $('main').hidden = asTable; $('mainTable').hidden = !asTable;
+  $('mainLegend').innerHTML = '<span><i style="background:var(--s1)"></i>Día entrenado</span><span><i style="background:var(--s2)"></i>Récord</span><span><i class="ln"></i>Tendencia</span>' +
+    (all.some(d => sessions[d.si].n) ? '<span><i style="background:var(--surface);border:2px solid var(--s1);width:8px;height:8px"></i>Antes de la app (nota o marca)</span>' : '');
+  $('mainLegend').hidden = asTable;
+  const info = [];
+  if (lastPR) {
+    const wk = Math.floor((Date.now() - lastPR.t) / (7 * 864e5));
+    info.push(`<span>Último récord: <b>${fecha(lastPR.t, {day: 'numeric', month: 'short'})}</b> (${M.f(M.get(lastPR))} ${M.unit}, hace ${wk < 1 ? 'menos de 1 semana' : wk + (wk === 1 ? ' semana' : ' semanas')})</span>`);
+  } else info.push('<span>Aún sin récords nuevos en este ejercicio.</span>');
+  if (pts.length >= 3) {
+    const perMonth = regress(pts).b * 30 * 864e5;
+    const txt = Math.abs(perMonth) < (M.unit === 'kg' ? 0.5 : 0.01) ? 'estable' : (perMonth > 0 ? '▲ +' : '▼ ') + M.f(perMonth) + ' ' + M.unit + '/mes';
+    info.push(`<span>Tendencia del periodo: <b>${txt}</b>${lowerBetter ? ' (bajar es mejorar)' : ''}</span>`);
+  } else info.push('<span>Tendencia: faltan datos en este periodo.</span>');
+  if (BODYWEIGHT_EX.has(selEx)) info.push('<span>Ejercicio con peso corporal: el 1RM solo refleja cambios de tu peso. Lo que cuenta son las series y repeticiones (10 series de 10, unas 3 veces, hace ~2 meses).</span>');
+  if (SCALE_NOTE[selEx]) info.push(`<span>⚠ ${SCALE_NOTE[selEx]}</span>`);
+  if (asst) info.push('<span>Dominadas asistidas: el peso registrado es la <b>ayuda</b>. El 1RM y el volumen usan tu carga real (peso corporal − ayuda).</span>');
+  $('mainInfo').innerHTML = info.join('');
+  if (asTable) {
+    $('mainTable').innerHTML = `<table><thead><tr><th>Fecha</th><th>Mejor serie</th><th>1RM est.</th><th>${asst ? 'Ayuda mín.' : 'Peso máx.'}</th><th>Series</th><th>Volumen</th></tr></thead><tbody>` +
+      [...rows].reverse().map(d => `<tr><td data-v="${d.t}">${fecha(d.t)}</td><td>${setTxt(d.best)}</td><td>${fmt(d.e1)}</td><td>${fmt(d.maxw)}</td><td>${d.sets}</td><td>${fmt0(d.vol)}</td></tr>`).join('') + '</tbody></table>';
+    makeSortable($('mainTable').querySelector('table'), 'main');
+  } else {
+    lineChart($('main'), pts, {label: `${M.name} de ${nameOf(selEx)} a lo largo del tiempo`, yfmt: M.unit === 'kg' ? fmt0 : fmt2, vfmt: M.f, trend: true, sel: selDay, onPick: p => { selDay = p.key; renderMain(); }});
+  }
+  renderDetail();
+}
+
+// ---- Detalle de un día
+function renderDetail() {
+  const box = $('detail'), d = selDay === null ? null : byEx[selEx].find(x => x.si === selDay);
+  if (!d) { box.hidden = true; return; }
+  const sets = perf.filter(p => p.ex === selEx && p.si === selDay).sort((x, y) => x.t - y.t);
+  box.hidden = false;
+  box.innerHTML = `<h3>${nameOf(selEx)} · ${fecha(d.t, {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'})}${sessions[selDay].n ? ' (' + preLabel(selDay) + ')' : sessions[selDay].c ? ' (WhatsApp)' : ''} <button class="x" type="button" id="closeDetail">Cerrar</button></h3>
+    <div class="scroll"><table><thead><tr><th>Serie</th><th>${ASSISTED.has(selEx) ? 'Ayuda' : 'Peso'}</th><th>Reps</th><th>1RM est.</th><th>Volumen</th></tr></thead><tbody>` +
+    sets.map((p, i) => `<tr class="${p === d.best ? 'bestset' : ''}"><td>${i + 1}${p === d.best ? ' · mejor' : ''}</td><td>${fmt(p.w)} kg</td><td>${p.r}</td><td>${fmt(p.e1)} kg</td><td>${fmt0(p.v)} kg</td></tr>`).join('') +
+    '</tbody></table></div>';
+  makeSortable(box.querySelector('table'), 'detail');
+  $('closeDetail').onclick = () => { selDay = null; renderMain(); };
+}
+
+// ---- Volumen semanal
+function weekStart(ms) { const d = new Date(ms); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.getTime(); }
+function renderWeekly() {
+  const m = new Map();
+  const cut = cutoff();
+  for (const p of perf) {
+    if (sessions[p.si].s < cut || sessions[p.si].n) continue;
+    const k = weekStart(sessions[p.si].s), c = m.get(k) || {v: 0, ss: new Set()};
+    c.v += p.vt; c.ss.add(p.si); m.set(k, c);
+  }
+  const keys = [...m.keys()].sort((a, b) => a - b), out = [];
+  if (!keys.length) { $('weekly').innerHTML = '<p class="hint">Sin datos en este periodo.</p>'; return; }
+  for (let k = keys[0]; k <= keys[keys.length - 1]; k += 7 * 864e5) {
+    const d = new Date(k); d.setHours(12); const kk = weekStart(d.getTime());
+    const c = m.get(kk) || {v: 0, ss: new Set()};
+    out.push({v: Math.round(c.v), axis: fecha(kk, {day: 'numeric', month: 'short'}),
+      tip: `<b>Semana del ${fecha(kk, {day: 'numeric', month: 'short'})}</b>${fmt0(c.v)} kg · ${c.ss.size} ejercicios`});
+  }
+  barChart($('weekly'), out, {label: 'Volumen semanal'});
+}
+
+// ---- Series por ejercicio
+function renderSets() {
+  const items = exIds.map(id => ({label: nameIcon(id), v: perf.filter(p => p.ex === id && !sessions[p.si].n).length, id}))
+    .filter(it => it.v > 0)
+    .map(it => ({...it, tip: `<b>${it.label}</b>${it.v} series en ${byEx[it.id].filter(d => !sessions[d.si].n).length} días`}));
+  barChart($('sets'), items, {horizontal: true, label: 'Series por ejercicio'});
+}
+
+// ---- Tabla resumen
+function renderSummary() {
+  const rows = exIds.map(id => {
+    const d = byEx[id], a = d[0].e1, b = d[d.length - 1].e1, pr = Math.max(...d.map(x => x.e1)), prT = (d.find(x => x.e1 === pr && !sessions[x.si].n) || d.find(x => x.e1 === pr)).t;
+    return {id, n: d.length, a, b, pr, prT, pct: d.length > 1 ? (b / a - 1) * 100 : null, spark: d.map(x => x.e1)};
+  });
+  $('summary').innerHTML = `<thead><tr><th>Ejercicio</th><th title="Días en que hiciste este ejercicio">Días</th><th title="Primer dato real que me diste (Smart Fit, WhatsApp, marca, nota de Keep o app); no hay inicios estimados">1er dato</th><th title="1RM estimado la última vez">1RM actual</th><th title="El 1RM estimado más alto que has tenido">Mejor 1RM</th><th title="Fecha en que lograste tu mejor 1RM">Fecha récord</th><th title="Variación entre el dato de inicio y el último registro">Cambio</th><th title="Reparto estimado del trabajo entre músculos" style="text-align:left">Músculos</th><th title="Forma de la evolución del 1RM, sin escala" data-nosort>Tendencia</th></tr></thead><tbody>` +
+    rows.map(r => `<tr data-id="${r.id}" class="${r.id === selEx ? 'sel' : ''}"><td data-v="${nameOf(r.id)}">${isMaxed(r.id) ? `<span title="Ya llegaste al peso máximo de esta máquina">${MAXED_ICON}</span> ` : ''}<button class="name" type="button" data-rename="${r.id}">${nameOf(r.id)}</button></td><td data-v="${r.n}">${r.n}</td><td data-v="${r.a}">${fmt(r.a)}</td><td data-v="${r.b}">${fmt(r.b)}</td><td data-v="${r.pr}">${fmt(r.pr)}</td><td data-v="${r.prT}">${fecha(r.prT, {day: 'numeric', month: 'short'})}</td>` +
+      `<td data-v="${r.pct === null ? '' : r.pct}">${r.pct === null ? '–' :`<span class="${r.pct > 0 ? 'up' : 'dn'}">${r.pct > 0 ? '▲ +' : r.pct < 0 ? '▼ ' : ''}${fmt(r.pct)}%</span>`}</td><td style="text-align:left;font-size:12px;color:var(--ink2)">${muscleTxt(r.id)}</td><td>${sparkline(r.spark)}</td></tr>`).join('') + '</tbody>';
+  makeSortable($('summary'), 'summary');
+}
+function fillSelect() {
+  $('ex').innerHTML = exIds.map(id => `<option value="${id}">${nameIcon(id)} (${byEx[id].length} días)</option>`).join('');
+  $('ex').value = selEx;
+  renderExPanel();
+}
+const GROUP_ORDER = ['Pecho', 'Espalda', 'Hombros', 'Bíceps', 'Tríceps', 'Antebrazos', 'Cuádriceps', 'Isquiotibiales', 'Glúteos', 'Aductores', 'Pantorrillas', 'Core'];
+const mainMuscle = id => Object.entries(MUSCLES[id] || {}).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Otros';
+function renderExPanel() {
+  const q = $('exSearch').value.trim().toLowerCase();
+  const groups = {};
+  exIds.filter(id => !q || nameOf(id).toLowerCase().includes(q)).forEach(id => (groups[mainMuscle(id)] = groups[mainMuscle(id)] || []).push(id));
+  const order = Object.keys(groups).sort((a, b) => (GROUP_ORDER.indexOf(a) + 1 || 99) - (GROUP_ORDER.indexOf(b) + 1 || 99));
+  $('exList').innerHTML = order.map(g => `<div class="exg">${g}<span>${groups[g].length}</span></div>` + groups[g].map(id => {
+    const d = byEx[id], last = d[d.length - 1].t;
+    return `<button type="button" class="exi${id === selEx ? ' on' : ''}" data-pick="${id}"><span class="n">${nameIcon(id)}</span><span class="m">${d.length} días · último ${fecha(last, {day: 'numeric', month: 'short', year: '2-digit'})}</span></button>`;
+  }).join('')).join('') || '<p class="small" style="padding:10px">Sin resultados.</p>';
+  $('curEx').textContent = nameIcon(selEx);
+  $('exFabName').textContent = nameOf(selEx);
+}
+function pickEx(id) {
+  selEx = id; selDay = null; $('ex').value = id;
+  renderExPanel(); renderMain(); renderSummary(); renderGoals(); renderMuscles();
+}
+const setPanel = on => document.body.classList.toggle('exopen', on);
+
+// ---- Peso corporal (de tu archivo Quantia)
+function renderBody() {
+  const pts = BODY.pts;
+  if (!pts.length) { $('bodyCard').hidden = true; return; }
+  // brk: hueco de más de 100 días sin pesajes; la línea se corta y el ritmo usa solo el último tramo continuo
+  const series = pts.map(([t, w], i) => ({x: t, y: w, brk: i > 0 && t - pts[i - 1][0] > 100 * 864e5, tip: `<b>${fecha(t)}</b>${fmt2(w)} kg`}));
+  const f = pts[0], l = pts[pts.length - 1], cfg = BODY.cfg, goalW = cfg.meta_peso;
+  let rs = series.length - 1; while (rs > 0 && !series[rs].brk) rs--;
+  const recent = series.slice(rs), hasGap = rs > 0;
+  const perWeek = recent.length >= 3 ? regress(recent).b * 7 * 864e5 : null;   // kg por semana
+  lineChart($('wChart'), series, {label: 'Peso corporal a lo largo del tiempo', trend: true, trendFrom: rs, yfmt: fmt0, vfmt: fmt});
+  $('wInfo').innerHTML = `<span>${pts.length} pesajes entre ${fecha(f[0], {day: 'numeric', month: 'short', year: 'numeric'})} y ${fecha(l[0], {day: 'numeric', month: 'short', year: 'numeric'})}</span>` +
+    (hasGap ? `<span>Sin pesajes entre ${fecha(pts[rs - 1][0], {month: 'short', year: 'numeric'})} y ${fecha(pts[rs][0], {month: 'short', year: 'numeric'})}: la línea se corta ahí.</span>` : '');
+  const kv = (a, b) => `<div class="kv"><span>${a}</span><b>${b}</b></div>`;
+  let h = '<h3>Peso</h3>' + kv('Último pesaje', `${fmt2(l[1])} kg · ${fecha(l[0], {day: 'numeric', month: 'short'})}`) + kv('Primer pesaje', `${fmt2(f[1])} kg · ${fecha(f[0], {day: 'numeric', month: 'short', year: 'numeric'})}`) +
+    kv('Cambio total', `${l[1] - f[1] > 0 ? '+' : ''}${fmt2(l[1] - f[1])} kg`) +
+    kv(`Ritmo (desde ${fecha(recent[0].x, {day: 'numeric', month: 'short'})})`, perWeek === null ? '–' : `${perWeek > 0 ? '▲ +' : '▼ '}${fmt2(perWeek)} kg/semana`);
+  if (goalW) {
+    h += kv('Meta de peso', `${fmt(goalW)} kg`) + kv('Te faltan', `${fmt(l[1] - goalW)} kg`);
+    const proj = perWeek < -0.02 ? (l[1] - goalW) / -perWeek : null;
+    h += `<p class="small" style="margin:8px 0 0">${proj === null ? 'Tu ritmo actual no baja, así que no se puede proyectar una fecha.' : proj > 104 ? `Al ritmo actual tardarías más de 2 años (~${fmt(proj / 52)} años).` : `Al ritmo actual llegarías hacia <b>${fecha(Date.now() + proj * 7 * 864e5, {month: 'long', year: 'numeric'})}</b>.`} Para lograrlo en 12 meses necesitarías bajar ~<b>${fmt2((l[1] - goalW) / 52)} kg/semana</b>.</p>`;
+  }
+  // alimentación: solo días con calorías registradas (0 = día sin registrar)
+  const k = BODY.nutr.filter(x => x[1] > 0), pr = BODY.nutr.filter(x => x[2] > 0);
+  if (k.length) {
+    const avg = k.reduce((a, x) => a + x[1], 0) / k.length, lo = +cfg.limite_bajo, hi = +cfg.limite_alto, inR = lo && hi ? k.filter(x => x[1] >= lo && x[1] <= hi).length : null;
+    h += '<h3 style="margin-top:16px">Alimentación</h3>' + kv('Calorías promedio', `${fmt0(avg)} kcal (${k.length} días registrados)`);
+    if (cfg.meta_diaria) h += kv('Meta diaria', `${fmt0(+cfg.meta_diaria)} kcal` + (lo ? ` (${fmt0(lo)}–${fmt0(hi)})` : ''));
+    if (inR !== null) h += kv('Días dentro del rango', `${inR} de ${k.length}`);
+    if (pr.length) h += kv('Proteína promedio', `${fmt0(pr.reduce((a, x) => a + x[2], 0) / pr.length)} g${cfg.meta_proteina ? ' de ' + fmt0(+cfg.meta_proteina) + ' g' : ''} (${pr.length} días)`);
+  }
+  $('bodyStats').innerHTML = h;
+  $('bodyHint').textContent = 'Datos de tu archivo Quantia. Con tus pesajes calculo la fuerza relativa (1RM ÷ peso) día a día.';
+}
+
+// ---- Metas
+const HEIGHT = 1.80;
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+let goals = store.get('goals', {}), bodyKg = store.get('bw', BODY.pts.length ? BODY.pts[BODY.pts.length - 1][1] : 118);
+const weightFor = (e1, r) => r <= 1 ? e1 : e1 / (1 + r / 30);   // inversa de Epley
+const med = a => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const mmss = ms => { const s = Math.round(ms / 1000); return Math.floor(s / 60) + ' min ' + String(s % 60).padStart(2, '0') + ' s'; };
+
+function renderGoals() {
+  if (BODYWEIGHT_EX.has(selEx)) {   // con el peso corporal el 1RM solo refleja cambios de peso: no sirve para metas
+    $('goalBox').innerHTML = `<h3>${nameIcon(selEx)}</h3><p class="small">Es un ejercicio con tu peso corporal: el 1RM estimado solo cambia cuando cambia tu peso, así que no sirve para ponerte una meta. Mide tu progreso con series y repeticiones (hoy: 10 series de 10).</p>`;
+    $('repTable').innerHTML = ''; $('formulas').innerHTML = '';
+    $('bw').value = bodyKg || '';
+    return;
+  }
+  const rows = byEx[selEx], recentRows = rows.slice(-5);
+  const top = recentRows.reduce((a, d) => d.e1 > a.e1 ? d : a, recentRows[0]), cur = top.e1, start = rows[0].e1;
+  // ritmo: últimas 12 semanas, y si hay pocos datos, todo el historial
+  const win = rows.filter(d => d.t >= Date.now() - 84 * 864e5), basis = win.length >= 3 ? win : rows;
+  const slope = basis.length >= 3 ? regress(basis.map(d => ({x: d.t, y: d.e1}))).b * 864e5 : null; // kg por día
+  const goal = goals[selEx], sug = Math.round(cur * 1.05);
+  let h = `<h3>${nameIcon(selEx)}</h3><div class="kv"><span>1RM estimado reciente</span><b>${fmt(cur)} kg</b></div>`;
+  h += `<div class="kv"><span>Ritmo (${basis === win ? 'últimas 12 semanas' : 'todo el historial'})</span><b>${slope === null ? 'faltan datos' : (slope > 0 ? '▲ +' : slope < 0 ? '▼ ' : '') + fmt(slope * 30) + ' kg/mes'}</b></div>`;
+  h += `<div class="row" style="margin:10px 0 4px"><label class="sub" for="goalIn">Meta de 1RM</label><input id="goalIn" type="number" min="1" step="0.5" value="${goal || ''}" placeholder="${sug}"><span class="small">kg</span>${goal ? '<button type="button" id="goalClear">Quitar</button>' : `<button type="button" id="goalSug">Usar ${sug} kg (+5%)</button>`}</div>`;
+  if (goal) {
+    const pct = goal <= start ? 100 : Math.max(0, Math.min(100, (cur - start) / (goal - start) * 100));
+    h += `<div class="bar" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>`;
+    h += `<div class="small">${fmt(start)} kg (inicio) → <b>${fmt(goal)} kg</b> · llevas ${Math.round(pct)}%</div>`;
+    let eta;
+    if (cur >= goal) eta = '¡Ya superaste esta meta! Puedes subir la siguiente.';
+    else if (slope > 0.001) {
+      const days = (goal - cur) / slope;
+      eta = days > 730 ? 'Al ritmo actual tardarías más de 2 años.' : `Al ritmo actual la alcanzarías hacia <b>${fecha(Date.now() + days * 864e5, {day: 'numeric', month: 'long', year: 'numeric'})}</b> (en ~${Math.max(1, Math.round(days / 7))} semanas).`;
+    } else eta = 'Tu ritmo reciente no sube, así que no se puede proyectar una fecha.';
+    h += `<p class="small" style="margin:8px 0 0">${eta}</p>`;
+    if (cur < goal) h += `<p class="small" style="margin:4px 0 0">Para llegar en 3 meses necesitas subir ~<b>${fmt((goal - cur) / 3)} kg/mes</b>.</p>`;
+  }
+  const mm = MACHINE_MAX[selEx];
+  if (mm && isMaxed(selEx)) {
+    const lastW = rows[rows.length - 1].maxw, hitDay = rows.find(d => d.maxw >= mm - 0.05);
+    let tip = lastW >= mm - 0.05
+      ? `${MAXED_ICON} Estás usando el <b>peso máximo de la máquina</b> (${fmt(mm)} kg${selEx === '227' ? ', aprox.' : ''}), así que ya no puedes subir kilos.`
+      : `${MAXED_ICON} Ya llegaste al <b>peso máximo de la máquina</b> (${fmt(mm)} kg el ${fecha(hitDay.t, {day: 'numeric', month: 'long', year: 'numeric'})}); tu última vez usaste ${fmt(lastW)} kg. No hay más kilos que subir.`;
+    tip += ' Sigue avanzando con más repeticiones, pausas más cortas o mejor técnica.';
+    if (goal && goal > cur) {
+      const need = Math.ceil(30 * (goal / mm - 1));
+      tip += ` Para llegar a tu meta con ese peso necesitarías unas <b>${need} repeticiones</b>${need > 15 ? ' (con tantas repeticiones la estimación es poco fiable)' : ''}.`;
+    }
+    h += `<p class="small" style="margin:10px 0 0">${tip}</p>`;
+  }
+  if (bodyKg) {
+    h += `<div class="kv" style="margin-top:10px"><span>Fuerza relativa ahora</span><b>${fmt2(cur / bodyKg)} × tu peso</b></div>`;
+    h += `<div class="kv"><span>Fuerza relativa al inicio</span><b>${fmt2(start / bwAt(rows[0].t))} × tu peso</b></div>`;
+  }
+  $('goalBox').innerHTML = h;
+
+  // pesos objetivo por repeticiones
+  const reps = [1, 3, 5, 8, 10, 12];
+  const asst = ASSISTED.has(selEx), shown = e1 => asst ? fmt(Math.max(0, (bodyKg || bwAt(Date.now())) - e1)) + ' kg de ayuda' : fmt(e1) + ' kg';
+  $('repTable').innerHTML = `<h3>${asst ? 'Con cuánta ayuda entrenar' : 'Con qué peso entrenar'}</h3><table><thead><tr><th>Reps</th><th>Hoy</th>${goal ? '<th>Para tu meta</th>' : ''}</tr></thead><tbody>` +
+    reps.map(r => `<tr><td>${r}</td><td>${shown(weightFor(cur, r))}</td>${goal ? `<td>${shown(weightFor(goal, r))}</td>` : ''}</tr>`).join('') + `</tbody></table>
+    <p class="small" style="margin:6px 0 0">${asst ? 'Ayuda con la que harías ese número de repeticiones, según tu 1RM estimado y tu peso actual. Menos ayuda es mejor.' : 'Peso con el que harías ese número de repeticiones, según tu 1RM estimado. "Para tu meta" es el peso que tendrías que mover para estar en tu meta.'}</p>`;
+
+  // otras fórmulas con la mejor serie reciente
+  const b = top.best, brz = b.r < 37 ? b.eff * 36 / (37 - b.r) : null, lom = b.eff * Math.pow(b.r, 0.1);
+  $('formulas').innerHTML = `<span>Mejor serie reciente: <b>${setTxt(b)}</b></span><span>Epley: <b>${fmt(b.e1)}</b></span><span>Brzycki: <b>${brz ? fmt(brz) : '–'}</b></span><span>Lombardi: <b>${fmt(lom)}</b></span>` +
+    (b.r > 10 ? '<span>⚠ Con más de 10 repeticiones la estimación es menos fiable.</span>' : '');
+
+  $('goalIn').onchange = e => { const v = parseFloat(e.target.value); if (v > 0) goals[selEx] = v; else delete goals[selEx]; store.set('goals', goals); renderGoals(); };
+  if ($('goalClear')) $('goalClear').onclick = () => { delete goals[selEx]; store.set('goals', goals); renderGoals(); };
+  if ($('goalSug')) $('goalSug').onclick = () => { goals[selEx] = sug; store.set('goals', goals); renderGoals(); };
+  $('bw').value = bodyKg || '';
+  $('bwInfo').textContent = bodyKg
+    ? `Estatura 1,80 m · IMC ${fmt(bodyKg / (HEIGHT * HEIGHT))} (referencial). La fuerza relativa al inicio usa tu peso de esa fecha.`
+    : 'Estatura: 1,80 m. Con tu peso calculo la fuerza relativa (1RM ÷ peso).';
+}
+$('bw').onchange = e => { const v = parseFloat(e.target.value); bodyKg = v > 0 ? v : null; store.set('bw', bodyKg); renderGoals(); };
+
+// ---- Músculos trabajados
+function renderMuscles() {
+  const m = MUSCLES[selEx];
+  $('mxTitle').textContent = `${nameIcon(selEx)}: reparto por músculo`;
+  if (m) {
+    const items = Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({label: k, v, tip: `<b>${k}</b>${v}% del trabajo de este ejercicio`}));
+    barChart($('mxEx'), items, {horizontal: true, suffix: '%', label: `Músculos que trabaja ${nameOf(selEx)}`});
+  } else $('mxEx').innerHTML = '<p class="hint">Sin datos de músculos para este ejercicio.</p>';
+
+  // Reparto total: cada serie aporta su % a cada músculo (series equivalentes)
+  const cut = cutoff(), acc = {};
+  let sets = 0, t0 = Infinity, t1 = 0;
+  for (const p of perf) {
+    const s = sessions[p.si];
+    if (s.n || s.s < cut || !MUSCLES[p.ex]) continue;
+    sets++; t0 = Math.min(t0, s.s); t1 = Math.max(t1, s.s);
+    for (const k in MUSCLES[p.ex]) acc[k] = (acc[k] || 0) + MUSCLES[p.ex][k] / 100;
+  }
+  const weeks = Math.max(1, (t1 - t0) / (7 * 864e5)), per = rangeDays === -1 ? `este año (${new Date().getFullYear()})` : rangeDays ? `últimos ${rangeDays === 30 ? '30 días' : rangeDays === 90 ? '3 meses' : '6 meses'}` : 'todo el historial';
+  $('mxAllTitle').textContent = `Todo tu entrenamiento (${per})`;
+  if (!sets) { $('mxAll').innerHTML = '<p class="hint">Sin datos en este periodo.</p>'; $('mxNote').innerHTML = ''; return; }
+  const items = Object.entries(acc).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({label: k, v: Math.round(v / sets * 100), tip: `<b>${k}</b>${fmt(v)} series equivalentes<br><span>~${fmt(v / weeks)} por semana</span>`}));
+  barChart($('mxAll'), items, {horizontal: true, suffix: '%', label: 'Reparto del entrenamiento por músculo'});
+  $('mxNote').innerHTML = `<span>Cada serie suma su porcentaje a cada músculo. Pasa el cursor por una barra para ver las series equivalentes por semana.</span><span>⚠ Lo que no registras en la app no cuenta, así que si haces más piernas fuera de lo anotado, salen subestimadas.</span>`;
+}
+
+// ---- Descanso entre series (tiempo entre una serie y la siguiente, incluye la propia serie)
+function renderRest() {
+  const gaps = [];
+  sessions.forEach((s, si) => {
+    if (s.n || s.c) return;
+    const ps = perf.filter(p => p.si === si).sort((a, b) => a.t - b.t);
+    for (let i = 1; i < ps.length; i++) {
+      const g = ps[i].t - ps[i - 1].t;
+      if (g >= 30e3 && g <= 20 * 60e3) gaps.push({g, t: ps[i].t, ex: ps[i].ex});
+    }
+  });
+  if (!gaps.length) { $('restHint').textContent = 'Sin datos suficientes.'; return; }
+  const all = med(gaps.map(x => x.g)), inRange = gaps.filter(x => x.g >= 150e3 && x.g <= 240e3).length / gaps.length * 100;
+  $('restHint').innerHTML = `Mediana general: <b>${mmss(all)}</b>. El ${Math.round(inRange)}% de las pausas cae entre 2:30 y 4:00 min. Mides el tiempo entre una serie y la siguiente, así que incluye lo que dura la serie (~1 min). Descansar ~3 min hace comparables tus 1RM entre días.`;
+  const byM = new Map();
+  gaps.forEach(x => { const d = new Date(x.t), k = d.getFullYear() * 12 + d.getMonth(); (byM.get(k) || byM.set(k, []).get(k)).push(x.g); });
+  const items = [...byM.keys()].sort((a, b) => a - b).map(k => {
+    const m = med(byM.get(k)), d = new Date(Math.floor(k / 12), k % 12, 1);
+    return {v: +(m / 60000).toFixed(2), axis: d.toLocaleDateString('es', {month: 'short'}), tip: `<b>${d.toLocaleDateString('es', {month: 'long', year: 'numeric'})}</b>${mmss(m)} · ${byM.get(k).length} pausas`};
+  });
+  barChart($('restChart'), items, {label: 'Descanso mediano por mes en minutos'});
+  const byE = {};
+  gaps.forEach(x => (byE[x.ex] = byE[x.ex] || []).push(x.g));
+  $('restTable').innerHTML = '<table><thead><tr><th>Ejercicio</th><th>Pausa mediana</th><th>Pausas</th></tr></thead><tbody>' +
+    Object.keys(byE).sort((a, b) => byE[b].length - byE[a].length).map(id => `<tr><td>${nameOf(id)}</td><td data-v="${med(byE[id])}">${mmss(med(byE[id]))}</td><td>${byE[id].length}</td></tr>`).join('') + '</tbody></table>';
+  makeSortable($('restTable').querySelector('table'), 'rest');
+}
+
+// ---- Recuperación por músculo
+// Rangos en horas. Fuente "blog": cifras de un blog de fitness (arvo.guru) que cita estudios sin detalle; "estimado": mi aproximación porque no encontré cifra específica.
+const RECOVERY = [
+  ["Pecho", 48, 72, "blog"], ["Hombros", 48, 72, "blog"], ["Espalda", 48, 72, "blog"],
+  ["Bíceps", 36, 48, "blog"], ["Tríceps", 36, 48, "blog"], ["Antebrazos", 24, 48, "estimado"],
+  ["Cuádriceps", 48, 72, "blog"], ["Isquiotibiales", 48, 72, "estimado"], ["Glúteos", 48, 72, "estimado"],
+  ["Aductores", 48, 72, "estimado"], ["Pantorrillas", 24, 48, "estimado"], ["Core", 24, 48, "estimado"]
+];
+function renderRecovery() {
+  const last = {};
+  for (const p of perf) {
+    const s = sessions[p.si]; if (s.n) continue;
+    const m = MUSCLES[p.ex]; if (!m) continue;
+    for (const k in m) if (m[k] >= 30 && (!last[k] || s.s > last[k])) last[k] = s.s;
+  }
+  const now = Date.now();
+  $('recTable').innerHTML = '<thead><tr><th>Músculo</th><th title="Horas de descanso orientativas">Recuperación</th><th>Fuente</th><th>Última vez que lo trabajaste</th><th>Estado</th></tr></thead><tbody>' +
+    RECOVERY.map(([k, lo, hi, src]) => {
+      const t = last[k], h = t ? (now - t) / 36e5 : null;
+      const st = h === null ? ['–', ''] : h >= hi ? ['Recuperado', 'up'] : h >= lo ? ['Casi listo', ''] : ['En recuperación', 'dn'];
+      return `<tr><td data-v="${k}">${k}</td><td data-v="${lo}">${lo}–${hi} h</td><td>${src === 'blog' ? 'Blog de fitness' : 'Estimado'}</td><td data-v="${t || 0}">${t ? fecha(t, {day: 'numeric', month: 'short', year: 'numeric'}) + ' (hace ' + (h < 48 ? Math.round(h) + ' h' : Math.round(h / 24) + ' días') + ')' : 'sin datos'}</td><td><span class="${st[1]}">${st[0]}</span></td></tr>`;
+    }).join('') + '</tbody>';
+  makeSortable($('recTable'), 'rec');
+  $('recNote').innerHTML = '<span>Son rangos generales, no una regla: dependen de la intensidad (cerca del fallo recupera más lento), del sueño, la comida y tu experiencia. Los estudios de frecuencia muestran que lo que más pesa para crecer es el volumen semanal total, y que entrenar cada músculo unas 2 veces por semana rinde algo mejor que 1.</span><span>Fuentes: <a href="https://arvo.guru/blog/muscle-recovery-windows-evidence" target="_blank" rel="noopener">Arvo, ventanas de recuperación</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9302196/table/T1" target="_blank" rel="noopener">revisión sobre frecuencia de entrenamiento (PMC)</a> · <a href="https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2021.789403/pdf" target="_blank" rel="noopener">Frontiers in Physiology 2021</a>. Las filas "Estimado" no tienen cifra específica en lo que encontré.</span>';
+}
+
+// ---- Eventos
+$('ex').onchange = e => pickEx(e.target.value);
+$('exList').addEventListener('click', e => {
+  const b = e.target.closest('[data-pick]'); if (!b) return;
+  pickEx(b.dataset.pick); setPanel(false);
+  if (innerWidth <= 1000) scrollTo({top: document.querySelector('section.card h2').offsetTop - 12, behavior: 'smooth'});
+});
+$('exSearch').oninput = renderExPanel;
+$('exFab').onclick = () => setPanel(true);
+$('exClose').onclick = $('exBack').onclick = () => setPanel(false);
+addEventListener('keydown', e => { if (e.key === 'Escape') setPanel(false); });
+document.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { rangeDays = +b.dataset.r; selDay = null; renderMain(); renderWeekly(); renderMuscles(); });
+document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { metric = b.dataset.m; renderMain(); });
+$('tbl').onclick = () => { asTable = !asTable; renderMain(); };
+$('summary').addEventListener('click', e => {
+  const rn = e.target.closest('[data-rename]');
+  if (rn) {
+    const id = rn.dataset.rename, v = prompt('Nombre del ejercicio ' + id, nameOf(id));
+    if (v !== null) { names[id] = v.trim() || undefined; if (!names[id]) delete names[id]; try { localStorage.setItem('names', JSON.stringify(names)); } catch (er) {} renderAll(); }
+    return;
+  }
+  const tr = e.target.closest('tr[data-id]');
+  if (tr) { pickEx(tr.dataset.id); scrollTo({top: 0, behavior: 'smooth'}); }
+});
+$('theme').onclick = () => {
+  const root = document.documentElement, dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme:dark)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark';
+  try { localStorage.setItem('theme', root.dataset.theme); } catch (e) {}
+};
+try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+
+function renderAll() { fillSelect(); renderTiles(); renderMain(); renderGoals(); renderMuscles(); renderBody(); renderRest(); renderWeekly(); renderSets(); renderSummary(); renderRecovery(); }
+renderAll();
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { renderMain(); renderMuscles(); renderBody(); renderRest(); renderWeekly(); renderSets(); }, 120); });
+</script>
+</body>
+</html>
