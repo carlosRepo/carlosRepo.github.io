@@ -26,6 +26,21 @@
   --s1:#3987e5; --s2:#d95926; --seq-lo:#184f95; --seq:#3987e5;
 }
 *{box-sizing:border-box}
+body[data-tab="tr"] #note,body[data-tab="tr"] #tiles,body[data-tab="tr"] .gl{display:none}
+.rangebar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:0 0 16px}
+.rangebar input[type=date]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--ring);border-radius:8px;padding:5px 8px}
+.rgmove{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+body[data-tab="tr"] #rangeBar{display:none}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:0 0 16px;padding-bottom:2px;position:sticky;top:0;z-index:5;background:var(--page)}
+.tabs button{white-space:nowrap;padding:9px 16px}
+#trTimer{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+#trTimer.over{color:var(--s2)}
+.trf{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:10px 0}
+.trf label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--ink2)}
+.trf input[type=text],.trf select{width:auto;min-width:150px}
+.trf input[type=number]{width:90px}
+#trSave{font-weight:600;padding:10px 18px}
+body:not([data-tab="tr"]) [data-tab="tr"],body:not([data-tab="ej"]) [data-tab="ej"],body:not([data-tab="pe"]) [data-tab="pe"],body:not([data-tab="mu"]) [data-tab="mu"],body:not([data-tab="en"]) [data-tab="en"]{display:none!important}
 body{margin:0;background:var(--page);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
 .wrap{max-width:1440px;margin:0 auto;padding:24px 16px 64px}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:20px;align-items:start}
@@ -155,6 +170,29 @@ th[title],.tile[title]{cursor:help}
   <div class="layout"><div class="main">
   <div class="note" id="note"></div>
   <div class="tiles" id="tiles"></div>
+  <nav class="tabs" id="tabs" aria-label="Secciones">
+    <button type="button" data-t="tr">➕ Entrenar</button>
+    <button type="button" data-t="ej">📈 Ejercicios</button>
+    <button type="button" data-t="pe">⚖️ Peso</button>
+    <button type="button" data-t="mu">💪 Músculos</button>
+    <button type="button" data-t="en">⏱️ Entreno</button>
+  </nav>
+  <div class="rangebar" id="rangeBar">
+    <span class="seg" id="rgPre">
+      <button type="button" data-p="0">Todo</button>
+      <button type="button" data-p="-1">Este año</button>
+      <button type="button" data-p="180">6 meses</button>
+      <button type="button" data-p="90">3 meses</button>
+      <button type="button" data-p="30">1 mes</button>
+    </span>
+    <span class="rgmove">
+      <button type="button" id="rgPrev" title="Mover el rango hacia atrás">◀</button>
+      <input type="date" id="rgFrom" aria-label="Desde">
+      <span class="sub">→</span>
+      <input type="date" id="rgTo" aria-label="Hasta">
+      <button type="button" id="rgNext" title="Mover el rango hacia adelante">▶</button>
+    </span>
+  </div>
 
   <details class="card gl">
     <summary>¿Qué significa cada cosa?</summary>
@@ -189,7 +227,33 @@ th[title],.tile[title]{cursor:help}
     </dl>
   </details>
 
-  <section class="card">
+  <section class="card" id="trCard" data-tab="tr">
+    <form id="trForm">
+      <div class="trf">
+        <label>Ejercicio<select id="trEx"></select></label>
+        <label id="trNewL" hidden>Nombre nuevo<input type="text" id="trNew" placeholder="Ej: Remo con barra"></label>
+        <label id="trMusL" hidden>Músculo principal<select id="trMus"></select></label>
+      </div>
+      <div class="trf">
+        <label>Peso (kg)<input type="number" id="trKg" step="0.05" min="0" required></label>
+        <label>Repeticiones<input type="number" id="trReps" step="1" min="1" required></label>
+        <label>Descanso (min)<input type="number" id="trRest" step="0.5" min="0.5" value="3"></label>
+        <button type="submit" id="trSave">✅ Registrar serie</button>
+      </div>
+    </form>
+    <div id="trBox" style="margin:14px 0;padding:14px 16px;border:1px solid var(--ring);border-radius:12px" hidden>
+      <div class="small" id="trTLabel">Descanso</div>
+      <div id="trTimer">3:00</div>
+      <div class="row" style="margin-top:8px;gap:8px">
+        <button type="button" id="trPause">⏸ Pausar · voy a hacer la serie</button>
+        <button type="button" id="trStop">✕ Cancelar timer</button>
+      </div>
+    </div>
+    <div class="scroll" id="trHist" style="max-height:340px;overflow:auto;margin-top:14px"></div>
+    <div class="scroll" id="trToday" style="margin-top:14px"></div>
+  </section>
+
+  <section class="card" data-tab="ej">
     <h2>Evolución por ejercicio</h2>
     <p class="hint">Mejor serie de cada sesión. El 1RM estimado usa la fórmula de Epley: peso × (1 + reps/30).</p>
     <div class="row">
@@ -202,16 +266,6 @@ th[title],.tile[title]{cursor:help}
       <button type="button" data-m="rel" aria-pressed="false" title="1RM estimado ÷ tu peso corporal de ese día">Fuerza relativa</button>
       <button type="button" id="tbl" aria-pressed="false">Ver tabla</button>
     </div>
-    <div class="row">
-      <span class="sub">Periodo</span>
-      <span class="seg">
-        <button type="button" data-r="0" aria-pressed="true">Todo</button>
-        <button type="button" data-r="-1" aria-pressed="false">Este año</button>
-        <button type="button" data-r="180" aria-pressed="false">6 meses</button>
-        <button type="button" data-r="90" aria-pressed="false">3 meses</button>
-        <button type="button" data-r="30" aria-pressed="false">1 mes</button>
-      </span>
-    </div>
     <div class="legend" id="mainLegend"></div>
     <div class="chart" id="main"></div>
     <div class="info" id="mainInfo"></div>
@@ -219,7 +273,7 @@ th[title],.tile[title]{cursor:help}
     <div class="tview" id="mainTable" hidden></div>
   </section>
 
-  <section class="card" id="goalCard">
+  <section class="card" id="goalCard" data-tab="ej">
     <h2>Metas y objetivos</h2>
     <p class="hint">Para el ejercicio elegido arriba. Fija una meta de 1RM estimado y mira cuánto falta, cuándo la alcanzarías y con qué peso entrenar hoy.</p>
     <div class="goalgrid">
@@ -234,7 +288,7 @@ th[title],.tile[title]{cursor:help}
     </div>
   </section>
 
-  <section class="card" id="muscleCard">
+  <section class="card" id="muscleCard" data-tab="mu">
     <h2>Músculos trabajados</h2>
     <p class="hint">Reparto estimado del trabajo entre músculos. Son valores típicos para cada ejercicio, no una medición tuya: cambian según la máquina, el agarre y la técnica.</p>
     <div class="two">
@@ -244,16 +298,44 @@ th[title],.tile[title]{cursor:help}
     <div class="info" id="mxNote"></div>
   </section>
 
-  <section class="card" id="bodyCard">
+  <section class="card" id="bodyCard" data-tab="pe">
     <h2>Peso corporal y alimentación</h2>
     <p class="hint" id="bodyHint"></p>
     <div class="two">
       <div><div class="chart" id="wChart"></div><div class="info" id="wInfo"></div></div>
       <div id="bodyStats"></div>
     </div>
+    <h3 style="margin:18px 0 8px">Añadir peso</h3>
+    <form id="bwForm" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <input type="date" id="bwDate" required style="font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--ring);border-radius:8px;padding:6px 10px">
+      <input type="number" id="bwNew" step="0.05" min="30" max="400" placeholder="kg" required>
+      <button type="submit">➕ Añadir peso</button>
+      <span class="small" id="bwMsg"></span>
+    </form>
+    <h3 style="margin:18px 0 8px">Historial de pesos</h3>
+    <div class="scroll" id="bwHist" style="max-height:340px;overflow:auto"></div>
   </section>
 
-  <section class="card restcard">
+  <section class="card" id="wsCard" data-tab="pe">
+    <h2>Peso vs fuerza</h2>
+    <p class="hint">Cómo cambia tu fuerza cuando cambia tu peso. Elige un ejercicio.</p>
+    <p style="margin:0 0 12px"><select id="wsEx"></select></p>
+    <div class="two">
+      <div><h3>1RM estimado (kg)</h3><div class="chart" id="wsC1"></div></div>
+      <div><h3>Fuerza relativa (× tu peso)</h3><div class="chart" id="wsC2"></div></div>
+    </div>
+    <div class="two" style="margin-top:16px">
+      <div><h3>Peso corporal vs 1RM (cada punto = una sesión)</h3><div class="chart" id="wsC3"></div></div>
+      <div id="wsStats"></div>
+    </div>
+    <h3 style="margin:18px 0 8px">Todos los ejercicios</h3>
+    <div class="scroll"><table id="wsTable"></table></div>
+    <h3 style="margin:18px 0 8px">Mes a mes</h3>
+    <div class="scroll"><table id="wsMonth"></table></div>
+    <div class="info" id="wsNote"></div>
+  </section>
+
+  <section class="card restcard" data-tab="en">
     <h2>Tu descanso entre series</h2>
     <p class="hint" id="restHint"></p>
     <div class="two">
@@ -262,7 +344,7 @@ th[title],.tile[title]{cursor:help}
     </div>
   </section>
 
-  <div class="two">
+  <div class="two" data-tab="en">
     <section class="card">
       <h2>Volumen semanal</h2>
       <p class="hint">Suma de peso × repeticiones de todas las series.</p>
@@ -275,12 +357,12 @@ th[title],.tile[title]{cursor:help}
     </section>
   </div>
 
-  <section class="card" style="margin-top:16px">
+  <section class="card" style="margin-top:16px" data-tab="ej">
     <h2>Resumen por ejercicio</h2>
     <p class="hint">Comparación entre tu primer y último 1RM estimado en cada ejercicio. ✅ = ya llegaste al peso máximo de esa máquina. Haz clic en una fila para verla arriba, en el nombre para renombrarla y en un encabezado para ordenar la tabla.</p>
     <div class="scroll"><table id="summary"></table></div>
   </section>
-  <section class="card" id="recCard">
+  <section class="card" id="recCard" data-tab="mu">
     <h2>Cuánto demora en recuperarse cada músculo</h2>
     <p class="hint">Tiempos orientativos entre dos entrenamientos fuertes del mismo músculo. La última columna usa tus registros: cuándo fue la última vez que trabajaste ese músculo de forma importante (30% o más del ejercicio).</p>
     <div class="scroll"><table id="recTable"></table></div>
@@ -302,6 +384,15 @@ const DATA = {"sessions":[{"s":1743541200000,"e":null,"n":1,"f":1},{"s":17435424
 
 // Peso corporal (archivo Quantia)
 const BODY = DATA.body || {pts: [], nutr: [], cfg: {}};   // pts: [[ms, kg]]  nutr: [[ms, kcal, proteína]]
+// Pesajes añadidos: los de este archivo (SEED_W) + los que registras con el botón (localStorage 'bwlog')
+const SEED_W = [[new Date(2026, 9, 11).getTime(), 117.25]];
+let BW_LOG = []; try { BW_LOG = JSON.parse(localStorage.getItem('bwlog') || '[]'); } catch (e) {}
+const dayKey = t => { const d = new Date(t); return d.getFullYear() * 10000 + d.getMonth() * 100 + d.getDate(); };
+(function () {
+  const m = new Map();
+  for (const [t, w] of [...BODY.pts, ...SEED_W, ...BW_LOG]) m.set(dayKey(t), [t, w]);   // un pesaje por día; el último gana
+  BODY.pts = [...m.values()].sort((a, b) => a[0] - b[0]);
+})();
 function bwAt(t) {   // peso interpolado entre pesajes; antes del primero se asume el primero
   const p = BODY.pts;
   if (!p.length) return 118;
@@ -388,6 +479,19 @@ const DEFAULT_NAMES = {"6":"Press inclinado con barra","9002":"Extensión de pie
 const nameOf = id => names[id] || DEFAULT_NAMES[id] || ('Ejercicio ' + id);
 
 // ---- Preparar datos
+// Series que registras en la pestaña "Entrenar" (localStorage 'wlog') y ejercicios nuevos ('wcustom')
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
+const WLOG = lsGet('wlog', []), WCUSTOM = lsGet('wcustom', {});
+for (const id in WCUSTOM) { DEFAULT_NAMES[id] = WCUSTOM[id].name; if (WCUSTOM[id].mus) MUSCLES[id] = {[WCUSTOM[id].mus]: 100}; }
+(function () {
+  const g = new Map();
+  for (const x of [...WLOG].sort((a, b) => a.t - b.t)) { const k = x.ex + '|' + dayKey(x.t); (g.get(k) || g.set(k, []).get(k)).push(x); }
+  for (const xs of g.values()) {
+    DATA.sessions.push({s: xs[0].t, e: xs[xs.length - 1].t + 60e3, w: 1});
+    const si = DATA.sessions.length - 1;
+    for (const x of xs) DATA.perf.push([si, isNaN(x.ex) ? x.ex : +x.ex, x.t, x.kg, x.reps]);
+  }
+})();
 const sessions = DATA.sessions;
 const BODYWEIGHT_EX = new Set(['9004']);   // ejercicios con tu peso corporal (el peso se toma de tus pesajes)
 const perf = DATA.perf.map(([si, ex, t, w, r]) => {
@@ -599,9 +703,10 @@ function sparkline(vals) {
 }
 
 // ---- Estado
-let selEx = exIds[0], metric = 'e1rm', asTable = false, rangeDays = 0, selDay = null;
-// rangeDays: 0 = todo, -1 = este año (desde el 1 de enero), N = últimos N días
-const cutoff = () => rangeDays === -1 ? new Date(new Date().getFullYear(), 0, 1).getTime() : rangeDays ? Date.now() - rangeDays * 864e5 : 0;
+let selEx = exIds[0], metric = 'e1rm', asTable = false, selDay = null;
+const RANGE = {from: 0, to: Infinity, preset: 0};
+const cutoff = () => RANGE.from;
+const inR = t => t >= RANGE.from && t <= RANGE.to;
 const METRICS = {
   e1rm: {name: '1RM estimado', unit: 'kg', f: fmt, get: d => d.e1},
   maxw: {name: 'Peso máximo', unit: 'kg', f: fmt, get: d => d.maxw},
@@ -652,13 +757,12 @@ function renderMain() {
     return {d, v, pr};
   });
   const cut = cutoff();
-  const rows = all.filter(d => d.t >= cut);
-  const pts = flagged.filter(f => f.d.t >= cut).map(({d, v, pr}) => ({
+  const rows = all.filter(d => inR(d.t));
+  const pts = flagged.filter(f => inR(f.d.t)).map(({d, v, pr}) => ({
     x: d.t, y: v, pr, key: d.si, est: !!sessions[d.si].n,
     tip: `<b>${fecha(d.t)}${sessions[d.si].n ? ' (' + preLabel(d.si) + ')' : sessions[d.si].c ? ' (WhatsApp)' : ''}</b>${M.name}: ${M.f(v)} ${M.unit}${pr ? ' · <b>🏆 Récord</b>' : ''}<br><span>Mejor serie: ${setTxt(d.best)} · ${d.sets} series</span><br><span>Clic para ver el detalle</span>`
   }));
   document.querySelectorAll('[data-m]').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === metric));
-  document.querySelectorAll('[data-r]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.r === rangeDays));
   $('tbl').setAttribute('aria-pressed', asTable);
   $('main').hidden = asTable; $('mainTable').hidden = !asTable;
   $('mainLegend').innerHTML = '<span><i style="background:var(--s1)"></i>Día entrenado</span><span><i style="background:var(--s2)"></i>Récord</span><span><i class="ln"></i>Tendencia</span>' +
@@ -708,7 +812,7 @@ function renderWeekly() {
   const m = new Map();
   const cut = cutoff();
   for (const p of perf) {
-    if (sessions[p.si].s < cut || sessions[p.si].n) continue;
+    if (!inR(sessions[p.si].s) || sessions[p.si].n) continue;
     const k = weekStart(sessions[p.si].s), c = m.get(k) || {v: 0, ss: new Set()};
     c.v += p.vt; c.ss.add(p.si); m.set(k, c);
   }
@@ -725,9 +829,9 @@ function renderWeekly() {
 
 // ---- Series por ejercicio
 function renderSets() {
-  const items = exIds.map(id => ({label: nameIcon(id), v: perf.filter(p => p.ex === id && !sessions[p.si].n).length, id}))
+  const items = exIds.map(id => ({label: nameIcon(id), v: perf.filter(p => p.ex === id && !sessions[p.si].n && inR(p.t)).length, id}))
     .filter(it => it.v > 0)
-    .map(it => ({...it, tip: `<b>${it.label}</b>${it.v} series en ${byEx[it.id].filter(d => !sessions[d.si].n).length} días`}));
+    .map(it => ({...it, tip: `<b>${it.label}</b>${it.v} series en ${byEx[it.id].filter(d => !sessions[d.si].n && inR(d.t)).length} días`}));
   barChart($('sets'), items, {horizontal: true, label: 'Series por ejercicio'});
 }
 
@@ -769,8 +873,9 @@ const setPanel = on => document.body.classList.toggle('exopen', on);
 
 // ---- Peso corporal (de tu archivo Quantia)
 function renderBody() {
-  const pts = BODY.pts;
-  if (!pts.length) { $('bodyCard').hidden = true; return; }
+  if (!BODY.pts.length) { $('bodyCard').hidden = true; return; }
+  const pts = BODY.pts.filter(p => inR(p[0]));
+  if (!pts.length) { $('wChart').innerHTML = '<p class="hint">Sin pesajes en este periodo.</p>'; $('wInfo').innerHTML = ''; $('bodyStats').innerHTML = ''; return; }
   // brk: hueco de más de 100 días sin pesajes; la línea se corta y el ritmo usa solo el último tramo continuo
   const series = pts.map(([t, w], i) => ({x: t, y: w, brk: i > 0 && t - pts[i - 1][0] > 100 * 864e5, tip: `<b>${fecha(t)}</b>${fmt2(w)} kg`}));
   const f = pts[0], l = pts[pts.length - 1], cfg = BODY.cfg, goalW = cfg.meta_peso;
@@ -799,8 +904,204 @@ function renderBody() {
     if (pr.length) h += kv('Proteína promedio', `${fmt0(pr.reduce((a, x) => a + x[2], 0) / pr.length)} g${cfg.meta_proteina ? ' de ' + fmt0(+cfg.meta_proteina) + ' g' : ''} (${pr.length} días)`);
   }
   $('bodyStats').innerHTML = h;
-  $('bodyHint').textContent = 'Datos de tu archivo Quantia. Con tus pesajes calculo la fuerza relativa (1RM ÷ peso) día a día.';
+  $('bodyHint').textContent = 'Datos de tu archivo Quantia más los pesajes que añades aquí. Con tus pesajes calculo la fuerza relativa (1RM ÷ peso) día a día.';
 }
+
+// ---- Añadir peso, historial y peso vs fuerza
+const pad2 = n => String(n).padStart(2, '0');
+const inputDate = t => { const d = new Date(t); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; };
+const saveLog = () => { try { localStorage.setItem('bwlog', JSON.stringify(BW_LOG)); } catch (e) {} };
+function renderWeightTools() {
+  const dEl = $('bwDate'); if (!dEl.value) dEl.value = inputDate(Date.now());
+  const logKeys = new Set(BW_LOG.map(x => dayKey(x[0])));
+  const rows = [...BODY.pts].reverse().map((p, i, a) => {
+    const prev = a[i + 1], d = prev ? p[1] - prev[1] : null;
+    return `<tr><td data-v="${p[0]}">${fecha(p[0])}</td><td>${fmt2(p[1])} kg</td><td>${d === null ? '–' : `<span class="${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '▲ +' : d < 0 ? '▼ ' : ''}${fmt2(d)}</span>`}</td><td>${logKeys.has(dayKey(p[0])) ? `<button type="button" data-del="${dayKey(p[0])}" title="Borrar este pesaje">✕</button>` : ''}</td></tr>`;
+  }).join('');
+  $('bwHist').innerHTML = `<table><thead><tr><th>Fecha</th><th>Peso</th><th>Cambio</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+  $('bwHist').querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+    BW_LOG = BW_LOG.filter(x => dayKey(x[0]) !== +b.dataset.del); saveLog(); location.reload();
+  });
+}
+$('bwForm').onsubmit = e => {
+  e.preventDefault();
+  const kg = parseFloat($('bwNew').value), [y, m, d] = $('bwDate').value.split('-').map(Number);
+  if (!(kg > 30) || !y) { $('bwMsg').textContent = 'Revisa la fecha y el peso.'; return; }
+  const t = new Date(y, m - 1, d).getTime();
+  BW_LOG = BW_LOG.filter(x => dayKey(x[0]) !== dayKey(t)); BW_LOG.push([t, kg]); saveLog(); location.reload();
+};
+const pearson = (xs, ys) => {
+  const n = xs.length; if (n < 3) return null;
+  const mx = xs.reduce((a, b) => a + b, 0) / n, my = ys.reduce((a, b) => a + b, 0) / n;
+  let sxy = 0, sxx = 0, syy = 0;
+  xs.forEach((x, i) => { sxy += (x - mx) * (ys[i] - my); sxx += (x - mx) ** 2; syy += (ys[i] - my) ** 2; });
+  return sxx && syy ? sxy / Math.sqrt(sxx * syy) : null;
+};
+function scatterChart(host, pts, o) {
+  host.innerHTML = '';
+  const W = Math.max(host.clientWidth, 280), H = Math.min(340, Math.max(220, W * 0.55)), m = {l: 48, r: 16, t: 12, b: 34};
+  const svg = el('svg', {viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': o.label}, host);
+  if (pts.length < 2) { el('text', {x: W / 2, y: H / 2, 'text-anchor': 'middle', fill: 'var(--muted)'}, svg).textContent = 'Sin datos'; return; }
+  const xt = niceTicks(Math.min(...pts.map(p => p.x)) - 0.5, Math.max(...pts.map(p => p.x)) + 0.5, 4), yt = niceTicks(Math.min(...pts.map(p => p.y)) * 0.95, Math.max(...pts.map(p => p.y)) * 1.03, 4);
+  const x0 = xt[0], x1 = xt[xt.length - 1], y0 = yt[0], y1 = yt[yt.length - 1];
+  const X = x => m.l + (x - x0) / (x1 - x0) * (W - m.l - m.r), Y = y => H - m.b - (y - y0) / (y1 - y0) * (H - m.t - m.b);
+  for (const t of yt) { el('line', {x1: m.l, x2: W - m.r, y1: Y(t), y2: Y(t), stroke: 'var(--grid)'}, svg); el('text', {x: m.l - 8, y: Y(t) + 4, 'text-anchor': 'end', fill: 'var(--muted)', 'font-size': 12}, svg).textContent = fmt0(t); }
+  for (const t of xt) el('text', {x: X(t), y: H - 18, 'text-anchor': 'middle', fill: 'var(--muted)', 'font-size': 12}, svg).textContent = fmt0(t);
+  el('text', {x: (W + m.l) / 2, y: H - 3, 'text-anchor': 'middle', fill: 'var(--muted)', 'font-size': 11}, svg).textContent = 'peso corporal (kg)';
+  el('line', {x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, stroke: 'var(--axis)'}, svg);
+  if (pts.length >= 3) { const g = regress(pts); el('line', {x1: X(x0), y1: Y(g.a + g.b * x0), x2: X(x1), y2: Y(g.a + g.b * x1), stroke: 'var(--muted)', 'stroke-width': 2, 'stroke-dasharray': '6 5'}, svg); }
+  pts.forEach(p => el('circle', {cx: X(p.x), cy: Y(p.y), r: 4, fill: 'var(--s1)', 'fill-opacity': .75, stroke: 'var(--surface)', 'stroke-width': 1.5}, svg));
+  const hit = el('rect', {x: m.l, y: 0, width: W - m.l - m.r, height: H, fill: 'transparent'}, svg);
+  hit.addEventListener('pointermove', e => {
+    const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) * W / r.width, py = (e.clientY - r.top) * W / r.width;
+    let bi = 0, bd = 1e12; pts.forEach((p, i) => { const d = (X(p.x) - px) ** 2 + (Y(p.y) - py) ** 2; if (d < bd) { bd = d; bi = i; } });
+    showTT(host, X(pts[bi].x) * r.width / W, Y(pts[bi].y) * r.width / W, pts[bi].tip);
+  });
+  hit.addEventListener('pointerleave', hideTT);
+}
+let wsSel = null;
+function renderWS() {
+  if (!BODY.pts.length) { $('wsCard').hidden = true; return; }
+  const sel = $('wsEx'), ok = id => !BODYWEIGHT_EX.has(id) && !ASSISTED.has(id) && byEx[id].length >= 3;
+  if (!sel.options.length) {
+    sel.innerHTML = exIds.filter(ok).map(id => `<option value="${id}">${nameOf(id)} (${byEx[id].length} sesiones)</option>`).join('');
+    sel.onchange = () => { wsSel = sel.value; renderWS(); };
+    wsSel = sel.value;
+  }
+  sel.value = wsSel;
+  const rows = (byEx[wsSel] || []).filter(d => inR(d.t));
+  const s1 = rows.map(d => ({x: d.t, y: d.e1, tip: `<b>${fecha(d.t)}</b>1RM ${fmt(d.e1)} kg · peso ${fmt2(bwAt(d.t))} kg`}));
+  const s2 = rows.map(d => ({x: d.t, y: d.e1 / bwAt(d.t), tip: `<b>${fecha(d.t)}</b>${fmt2(d.e1 / bwAt(d.t))} × peso`}));
+  const s3 = rows.map(d => ({x: bwAt(d.t), y: d.e1, tip: `<b>${fecha(d.t)}</b>peso ${fmt2(bwAt(d.t))} kg → 1RM ${fmt(d.e1)} kg`}));
+  lineChart($('wsC1'), s1, {label: '1RM estimado', trend: true, yfmt: fmt0, vfmt: fmt});
+  lineChart($('wsC2'), s2, {label: 'Fuerza relativa', trend: true, yfmt: fmt2, vfmt: fmt2});
+  scatterChart($('wsC3'), s3, {label: 'Peso corporal contra 1RM'});
+  const kv = (a, b) => `<div class="kv"><span>${a}</span><b>${b}</b></div>`;
+  if (rows.length >= 2) {
+    const a = rows[0], z = rows[rows.length - 1], dW = bwAt(z.t) - bwAt(a.t), dF = z.e1 - a.e1, r = pearson(s3.map(p => p.x), s3.map(p => p.y));
+    const rel0 = a.e1 / bwAt(a.t), rel1 = z.e1 / bwAt(z.t), best = rows.reduce((b, d) => d.e1 > b.e1 ? d : b, rows[0]);
+    let h = '<h3>Resumen</h3>' + kv('Peso: primera → última sesión', `${fmt2(bwAt(a.t))} → ${fmt2(bwAt(z.t))} kg (${dW > 0 ? '+' : ''}${fmt2(dW)})`) +
+      kv('1RM', `${fmt(a.e1)} → ${fmt(z.e1)} kg (${dF > 0 ? '+' : ''}${fmt(dF)} · ${fmt(dF / a.e1 * 100)}%)`) +
+      kv('Fuerza relativa', `${fmt2(rel0)} → ${fmt2(rel1)} × (${fmt((rel1 / rel0 - 1) * 100)}%)`) +
+      kv('Mejor 1RM', `${fmt(best.e1)} kg · ${fecha(best.t)} (peso ${fmt2(bwAt(best.t))} kg)`);
+    if (Math.abs(dW) > 0.5) h += kv(dW < 0 ? 'Fuerza por kg perdido' : 'Fuerza por kg ganado', `${dF / dW > 0 ? '+' : ''}${fmt2(dF / dW)} kg de 1RM`);
+    if (r !== null) h += kv('Correlación peso–1RM', `${fmt2(r)} · ${Math.abs(r) < .3 ? 'casi nula' : Math.abs(r) < .6 ? 'moderada' : 'fuerte'}${r < 0 ? ' (más fuerte al pesar menos)' : ' (más fuerte al pesar más)'}`);
+    h += `<p class="small" style="margin:8px 0 0">${dW < -1 && dF >= 0 ? 'Bajaste de peso y mantuviste o subiste tu fuerza: buena señal de que pierdes grasa y no músculo.' : dW < -1 && dF < 0 ? 'Bajaste de peso y tu 1RM también bajó: revisa proteína, descanso y progresión.' : dW >= -1 && dF > 0 ? 'Tu fuerza subió con el peso estable o al alza.' : 'Sin un cambio claro entre peso y fuerza.'}</p>`;
+    $('wsStats').innerHTML = h;
+  } else $('wsStats').innerHTML = '<p class="small">Faltan sesiones para comparar.</p>';
+  const cls = v => v > 0 ? 'up' : v < 0 ? 'dn' : '', pc = v => `<span class="${cls(v)}">${v > 0 ? '▲ +' : v < 0 ? '▼ ' : ''}${fmt(v)}%</span>`;
+  const all = exIds.filter(ok).filter(id => byEx[id].filter(d => inR(d.t)).length >= 2).map(id => {
+    const r = byEx[id].filter(d => inR(d.t)), a = r[0], z = r[r.length - 1];
+    return {id, n: r.length, dF: (z.e1 / a.e1 - 1) * 100, dR: ((z.e1 / bwAt(z.t)) / (a.e1 / bwAt(a.t)) - 1) * 100, c: pearson(r.map(d => bwAt(d.t)), r.map(d => d.e1))};
+  });
+  $('wsTable').innerHTML = '<thead><tr><th>Ejercicio</th><th>Sesiones</th><th>Δ 1RM</th><th>Δ fuerza relativa</th><th>Correlación con peso</th></tr></thead><tbody>' +
+    all.map(r => `<tr><td>${nameOf(r.id)}</td><td>${r.n}</td><td data-v="${r.dF}">${pc(r.dF)}</td><td data-v="${r.dR}">${pc(r.dR)}</td><td data-v="${r.c === null ? '' : r.c}">${r.c === null ? '–' : fmt2(r.c)}</td></tr>`).join('') + '</tbody>';
+  // mes a mes: peso promedio y trabajo
+  const mk = t => { const d = new Date(t); return d.getFullYear() * 12 + d.getMonth(); }, M = new Map();
+  for (const [t, w] of BODY.pts.filter(p => inR(p[0]))) { const o = M.get(mk(t)) || {w: [], v: 0, days: new Set()}; o.w.push(w); M.set(mk(t), o); }
+  for (const p of perf) { const o = inR(p.t) && M.get(mk(p.t)); if (o) { o.v += p.vt; o.days.add(p.si); } }
+  const avgOf = o => o.w.reduce((a, b) => a + b, 0) / o.w.length, ks = [...M.keys()].sort((a, b) => b - a);
+  $('wsMonth').innerHTML = '<thead><tr><th>Mes</th><th>Peso prom.</th><th>Cambio vs mes previo</th><th>Entrenos</th><th>Volumen (kg)</th></tr></thead><tbody>' +
+    ks.map(k => { const o = M.get(k), avg = avgOf(o), d = M.has(k - 1) ? avg - avgOf(M.get(k - 1)) : null;
+      return `<tr><td>${new Date(Math.floor(k / 12), k % 12).toLocaleDateString('es', {month: 'long', year: 'numeric'})}</td><td>${fmt2(avg)} kg</td><td>${d === null ? '–' : `<span class="${cls(d)}">${d > 0 ? '▲ +' : d < 0 ? '▼ ' : ''}${fmt2(d)}</span>`}</td><td>${o.days.size || '–'}</td><td>${o.v ? fmt0(o.v) : '–'}</td></tr>`; }).join('') + '</tbody>';
+  $('wsNote').innerHTML = '<span>El peso entre pesajes se interpola, así que con pocos pesajes la fuerza relativa es aproximada. La correlación no prueba causa: solo muestra si ambas cosas se mueven juntas.</span>';
+}
+
+// ---- Entrenar: registrar series con temporizador de descanso
+const trSaveLog = () => { try { localStorage.setItem('wlog', JSON.stringify(WLOG)); } catch (e) {} };
+const trGetT = () => lsGet('wtimer', null);
+const trSetT = v => { try { v ? localStorage.setItem('wtimer', JSON.stringify(v)) : localStorage.removeItem('wtimer'); } catch (e) {} };
+const clock = ms => { const s = Math.abs(Math.round(ms / 1000)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+function trLastTxt() {
+  const id = $('trEx').value, rows = id === '__new' ? [] : perf.filter(p => p.ex === id).sort((a, b) => b.t - a.t);
+  if (rows.length && !$('trKg').value) { $('trKg').value = rows[0].w; $('trReps').value = rows[0].r; }
+  $('trHist').innerHTML = rows.length ? '<table><thead><tr><th>Fecha</th><th>Serie</th><th>1RM est.</th><th></th></tr></thead><tbody>' +
+    rows.map(p => `<tr><td>${fecha(p.t)}</td><td>${setTxt(p)}</td><td>${fmt(p.e1)} kg</td><td>${WLOG.some(x => x.t === p.t) ? `<button type="button" data-dt="${p.t}" title="Borrar esta serie">🗑 Borrar</button>` : ''}</td></tr>`).join('') + '</tbody></table>' : '';
+  trBindDel($('trHist'));
+}
+function trBindDel(box) {
+  box.querySelectorAll('[data-dt]').forEach(b => b.onclick = () => {
+    if (!confirm('¿Borrar esta serie?')) return;
+    const i = WLOG.findIndex(x => x.t === +b.dataset.dt); if (i >= 0) { WLOG.splice(i, 1); trSaveLog(); location.reload(); }
+  });
+}
+function renderTrain() {
+  const sel = $('trEx');
+  if (!sel.options.length) {
+    sel.innerHTML = exIds.map(id => `<option value="${id}">${nameOf(id)}</option>`).join('') + '<option value="__new">➕ Ejercicio nuevo…</option>';
+    const MU = [...new Set(Object.values(MUSCLES).flatMap(m => Object.keys(m)))].sort();
+    $('trMus').innerHTML = '<option value="">(sin definir)</option>' + MU.map(m => `<option>${m}</option>`).join('');
+    const last = lsGet('wlastex', null); if (last && [...sel.options].some(o => o.value === String(last))) sel.value = last;
+    sel.onchange = () => {
+      const nw = sel.value === '__new'; $('trNewL').hidden = $('trMusL').hidden = !nw;
+      $('trKg').value = $('trReps').value = ''; trLastTxt();
+    };
+    const rt = lsGet('wrest', 3); $('trRest').value = rt;
+    $('trForm').onsubmit = e => {
+      e.preventDefault();
+      let ex = sel.value; const kg = parseFloat($('trKg').value), reps = parseInt($('trReps').value, 10);
+      if (!(kg >= 0) || !(reps > 0)) return;
+      if (ex === '__new') {
+        const name = $('trNew').value.trim(); if (!name) { $('trNew').focus(); return; }
+        const dup = exIds.find(id => nameOf(id).toLowerCase() === name.toLowerCase());
+        if (dup) ex = dup; else { ex = 'u' + Date.now().toString(36); WCUSTOM[ex] = {name, mus: $('trMus').value}; try { localStorage.setItem('wcustom', JSON.stringify(WCUSTOM)); } catch (e) {} }
+      }
+      const now = Date.now(), tm = trGetT(); let rest = null;
+      if (tm && now - tm.t0 < 30 * 60e3) rest = Math.round(((tm.pausedAt || now) - tm.t0) / 1000);   // s de descanso antes de esta serie
+      const entry = {t: now, ex, kg, reps}; if (rest !== null) entry.rest = rest;
+      WLOG.push(entry); trSaveLog();
+      const target = Math.max(0.5, parseFloat($('trRest').value) || 3);
+      try { localStorage.setItem('wrest', JSON.stringify(target)); localStorage.setItem('wlastex', JSON.stringify(ex)); } catch (e) {}
+      trSetT({t0: now, target: target * 60e3, pausedAt: null});
+      location.reload();
+    };
+    $('trPause').onclick = () => {
+      const tm = trGetT(); if (!tm) return;
+      if (tm.pausedAt) { tm.t0 += Date.now() - tm.pausedAt; tm.pausedAt = null; } else tm.pausedAt = Date.now();   // reanudar descuenta el tiempo pausado
+      trSetT(tm); trTick();
+    };
+    $('trStop').onclick = () => { trSetT(null); trTick(); };
+    sel.onchange(); trLastTxt();
+  }
+  // lista de hoy
+  const today = dayKey(Date.now()), mine = WLOG.filter(x => dayKey(x.t) === today).sort((a, b) => a.t - b.t);
+  $('trToday').innerHTML = mine.length ? '<table><thead><tr><th>Hora</th><th>Ejercicio</th><th>Serie</th><th>Descanso previo</th><th></th></tr></thead><tbody>' +
+    mine.map(x => `<tr><td>${new Date(x.t).toLocaleTimeString('es', {hour: '2-digit', minute: '2-digit'})}</td><td>${nameOf(x.ex)}</td><td>${fmt(x.kg)} kg × ${x.reps}</td><td>${x.rest == null ? '–' : clock(x.rest * 1000)}</td><td><button type="button" data-dt="${x.t}" title="Borrar serie">🗑 Borrar</button></td></tr>`).join('') + '</tbody></table>' :
+    '<p class="small">Aún no registras series hoy.</p>';
+  trBindDel($('trToday'));
+  trTick();
+}
+let trBeeped = false;
+function trTick() {
+  const tm = trGetT(), box = $('trBox');
+  if (!tm || Date.now() - tm.t0 > 30 * 60e3) { box.hidden = true; document.title = 'Mi progreso'; return; }
+  box.hidden = false;
+  const el_ = (tm.pausedAt || Date.now()) - tm.t0, left = tm.target - el_, over = left < 0;
+  $('trTimer').textContent = (over ? '+' : '') + clock(left);
+  $('trTimer').classList.toggle('over', over);
+  $('trTLabel').textContent = tm.pausedAt ? `⏸ Pausado: descanso anotado ${clock(el_)}` : over ? 'Descanso cumplido, ya puedes hacer la serie' : 'Descansando…';
+  $('trPause').textContent = tm.pausedAt ? '▶ Reanudar descanso' : '⏸ Pausar · voy a hacer la serie';
+  document.title = tm.pausedAt ? 'Mi progreso' : (over ? '¡Listo! ' : '') + clock(left) + ' · descanso';
+  if (over && !tm.pausedAt && !trBeeped) {
+    trBeeped = true;
+    try { navigator.vibrate && navigator.vibrate([300, 150, 300]); const A = new (window.AudioContext || window.webkitAudioContext)(), o = A.createOscillator(); o.connect(A.destination); o.frequency.value = 880; o.start(); o.stop(A.currentTime + .4); } catch (e) {}
+  }
+}
+setInterval(trTick, 250);
+
+// ---- Pestañas
+(function () {
+  let t = 'tr'; try { t = localStorage.getItem('tab') || 'tr'; } catch (e) {}
+  const set = (v, fire) => {
+    if (!document.querySelector(`#tabs [data-t="${v}"]`)) v = 'ej';
+    document.body.dataset.tab = v;
+    document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.t === v));
+    try { localStorage.setItem('tab', v); } catch (e) {}
+    if (fire) dispatchEvent(new Event('resize'));   // los gráficos se redibujan al quedar visibles
+  };
+  document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { set(b.dataset.t, true); scrollTo(0, 0); });
+  set(t, false);
+})();
 
 // ---- Metas
 const HEIGHT = 1.80;
@@ -897,11 +1198,11 @@ function renderMuscles() {
   let sets = 0, t0 = Infinity, t1 = 0;
   for (const p of perf) {
     const s = sessions[p.si];
-    if (s.n || s.s < cut || !MUSCLES[p.ex]) continue;
+    if (s.n || !inR(s.s) || !MUSCLES[p.ex]) continue;
     sets++; t0 = Math.min(t0, s.s); t1 = Math.max(t1, s.s);
     for (const k in MUSCLES[p.ex]) acc[k] = (acc[k] || 0) + MUSCLES[p.ex][k] / 100;
   }
-  const weeks = Math.max(1, (t1 - t0) / (7 * 864e5)), per = rangeDays === -1 ? `este año (${new Date().getFullYear()})` : rangeDays ? `últimos ${rangeDays === 30 ? '30 días' : rangeDays === 90 ? '3 meses' : '6 meses'}` : 'todo el historial';
+  const weeks = Math.max(1, (t1 - t0) / (7 * 864e5)), per = rangeLabel();
   $('mxAllTitle').textContent = `Todo tu entrenamiento (${per})`;
   if (!sets) { $('mxAll').innerHTML = '<p class="hint">Sin datos en este periodo.</p>'; $('mxNote').innerHTML = ''; return; }
   const items = Object.entries(acc).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({label: k, v: Math.round(v / sets * 100), tip: `<b>${k}</b>${fmt(v)} series equivalentes<br><span>~${fmt(v / weeks)} por semana</span>`}));
@@ -917,7 +1218,7 @@ function renderRest() {
     const ps = perf.filter(p => p.si === si).sort((a, b) => a.t - b.t);
     for (let i = 1; i < ps.length; i++) {
       const g = ps[i].t - ps[i - 1].t;
-      if (g >= 30e3 && g <= 20 * 60e3) gaps.push({g, t: ps[i].t, ex: ps[i].ex});
+      if (g >= 30e3 && g <= 20 * 60e3 && inR(ps[i].t)) gaps.push({g, t: ps[i].t, ex: ps[i].ex});
     }
   });
   if (!gaps.length) { $('restHint').textContent = 'Sin datos suficientes.'; return; }
@@ -974,7 +1275,6 @@ $('exSearch').oninput = renderExPanel;
 $('exFab').onclick = () => setPanel(true);
 $('exClose').onclick = $('exBack').onclick = () => setPanel(false);
 addEventListener('keydown', e => { if (e.key === 'Escape') setPanel(false); });
-document.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { rangeDays = +b.dataset.r; selDay = null; renderMain(); renderWeekly(); renderMuscles(); });
 document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { metric = b.dataset.m; renderMain(); });
 $('tbl').onclick = () => { asTable = !asTable; renderMain(); };
 $('summary').addEventListener('click', e => {
@@ -994,9 +1294,52 @@ $('theme').onclick = () => {
 };
 try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
 
-function renderAll() { fillSelect(); renderTiles(); renderMain(); renderGoals(); renderMuscles(); renderBody(); renderRest(); renderWeekly(); renderSets(); renderSummary(); renderRecovery(); }
+function renderAll() { fillSelect(); renderTiles(); renderMain(); renderGoals(); renderMuscles(); renderBody(); renderWeightTools(); renderWS(); renderTrain(); renderRest(); renderWeekly(); renderSets(); renderSummary(); renderRecovery(); }
+
+// ---- Rango de fechas global (todos los gráficos)
+const DAY = 864e5, startOfDay = t => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+const dataFirst = () => Math.min(...sessions.map(s => s.s), ...BODY.pts.map(p => p[0]));
+function rangeLabel() {
+  const p = RANGE.preset;
+  if (p === 0) return 'todo el historial';
+  if (p === -1) return `este año (${new Date().getFullYear()})`;
+  if (p) return `últimos ${p === 30 ? '30 días' : p === 90 ? '3 meses' : '6 meses'}`;
+  const f = {day: 'numeric', month: 'short', year: 'numeric'};
+  return `${fecha(RANGE.from, f)} – ${fecha(Math.min(RANGE.to, Date.now()), f)}`;
+}
+function applyRange(rerender = true) {
+  selDay = null;
+  document.querySelectorAll('#rgPre button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.p === RANGE.preset));
+  $('rgFrom').value = inputDate(RANGE.from > 0 ? RANGE.from : dataFirst());
+  $('rgTo').value = inputDate(isFinite(RANGE.to) ? RANGE.to : Date.now());
+  if (rerender) renderAll();
+}
+document.querySelectorAll('#rgPre button').forEach(b => b.onclick = () => {
+  const p = +b.dataset.p, now = Date.now();
+  RANGE.preset = p; RANGE.to = Infinity;
+  RANGE.from = p === 0 ? 0 : p === -1 ? new Date(new Date().getFullYear(), 0, 1).getTime() : startOfDay(now - p * DAY);
+  applyRange();
+});
+const rgSet = () => {
+  const [y1, m1, d1] = $('rgFrom').value.split('-').map(Number), [y2, m2, d2] = $('rgTo').value.split('-').map(Number);
+  if (!y1 || !y2) return;
+  RANGE.from = new Date(y1, m1 - 1, d1).getTime(); RANGE.to = new Date(y2, m2 - 1, d2).getTime() + DAY - 1;
+  if (RANGE.to < RANGE.from) RANGE.to = RANGE.from + DAY - 1;
+  RANGE.preset = null; applyRange();
+};
+$('rgFrom').onchange = $('rgTo').onchange = rgSet;
+function rgShift(dir) {
+  const now = Date.now(), first = startOfDay(dataFirst());
+  const from = RANGE.from > 0 ? RANGE.from : first, to = isFinite(RANGE.to) ? RANGE.to : now, L = Math.max(DAY, to - from);
+  let f = from + dir * L, t = to + dir * L;
+  if (t > now) { t = now; f = now - L; }
+  if (f < first) { f = first; t = first + L; }
+  RANGE.from = f; RANGE.to = t; RANGE.preset = null; applyRange();
+}
+$('rgPrev').onclick = () => rgShift(-1); $('rgNext').onclick = () => rgShift(1);
+applyRange(false);
 renderAll();
-let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { renderMain(); renderMuscles(); renderBody(); renderRest(); renderWeekly(); renderSets(); }, 120); });
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { renderMain(); renderMuscles(); renderBody(); renderWS(); renderRest(); renderWeekly(); renderSets(); }, 120); });
 </script>
 </body>
 </html>
